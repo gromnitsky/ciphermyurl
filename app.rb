@@ -1,15 +1,73 @@
-#require 'haml'
-#require 'sinatra'
 require 'pp'
+require 'pathname'
 
-#require_relative 'config'
+require_relative 'lib/ciphermyurl/db'
+require_relative 'lib/ciphermyurl/api'
+require_relative 'lib/ciphermyurl/auth'
+include CipherMyUrl
 
-configure do
+require_relative 'config/sinatra'
+require_relative 'config/init'
+
+# Return a generated slot number as 201 with text/plain or http error:
+#
+# [400]  bad request
+# [401]  unauthorized
+# [500]  couldn't pack
+#
+# Request body must contain JSON:
+#
+# { data: '...', pw: '...', keyshash: '...' }
+#
+# FIXME: check request.content_length
+post "/api/#{Api::VERSION}/pack" do
+  request.body.rewind
+  slot = nil
+  begin
+    slot = Api.pack Api.packRequestRead(request.body)
+    fail RuntimeError, 'failed to create a new slot' unless slot
+  rescue ApiUnauthorizedError
+    halt 401, $!
+  rescue ApiBadRequestError
+    halt 400, $!
+  else
+    halt 500, $!
+  end
+
+  slot
 end
 
-configure :production do
-  set :haml, ugly: true
+# Requred params:
+#
+# [slot]  a number > 0
+# [pw]    a password for unpacking the slot
+#
+# Return a data from the slot as text/plain or http error:
+#
+# [400]  bad request
+# [403]  password is invalid
+# [404]  slot not found
+# [500]  couldn't unpack
+get "/api/#{Api::VERSION}/unpack" do
+  r = nil
+  begin
+    r = Api.unpack Api.unpackRequestRead(params)
+    fail RuntimeError, 'unpack failed' unless r
+  rescue ApiBadRequestError
+    halt 400, $!
+  rescue ApiUnauthorizedError
+    halt 403, $!
+  rescue ApiInvalidSlotError
+    halt 404, $!
+  else
+    halt 500, $!
+  end
+  
+  r
 end
+
+
+### User in the browser
 
 get /([0-9]+)/ do |key|
   haml :unpack, :locals => { key: key }

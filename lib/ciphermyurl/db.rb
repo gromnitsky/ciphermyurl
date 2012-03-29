@@ -1,11 +1,14 @@
 require 'uri'
 require 'haml'
+require 'digest/md5'
 
 module CipherMyUrl
 
   module Data
-    DATA_MIN = 11
+    DATA_MIN = 'http://q.we'.size # 11
     DATA_MAX = 512
+    PW_MIN = 8
+    PW_MAX = 64
     
     extend self
     
@@ -17,17 +20,32 @@ module CipherMyUrl
     end
     
     def clean(data)
-      r = data.strip
+      r = data.to_s.strip
       r = valid_uri?(r) ? r : Haml::Helpers.escape_once(r)
-      fail 'the input to the cipher is not appropriate' if r.size < DATA_MIN || r.size > DATA_MAX
+      raise if r.size < DATA_MIN || r.size > DATA_MAX
       r
+    rescue
+      fail "data must be in range [#{DATA_MIN}-#{DATA_MAX}]"
     end
 
     def valid_pw?(pw)
-      pw.match(/^[a-zA-Z0-9]{8,64}$/) ? true : false
+      p = pw.to_s
+      unless p.match(/^[a-zA-Z0-9]{#{PW_MIN},#{PW_MAX}}$/)
+        fail "password length must be in the range [#{PW_MIN}-#{PW_MAX}] and contain [a-zA-Z0-9] only"
+      end
+      p
+    end
+
+    def valid_slot?(slot)
+      s = s.to_s
+      unless s.match(/^\d+$/)
+        fail "slot must be an unsigned integer"
+      end
+      s
     end
   end
 
+  # See test_cipher.rb for examples.
   module MyDB
     extend self
 
@@ -60,11 +78,15 @@ module CipherMyUrl
       adapter.getValue(key) ? true : false
     end
 
-    def pack(data, pw)
-      fail 'invalid password' unless Data.valid_pw?(pw)
+    # [user]  email
+    # [pw]    would be hashed
+    #
+    # FIXME: check 'user'
+    def pack(data, user, pw)
+      pw = Data.valid_pw?(pw)
       data = Data.clean data
       
-      adapter.pack(data, pw)
+      adapter.pack data, user, Digest::MD5.hexdigest(pw)
     end
     
   end

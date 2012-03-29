@@ -2,8 +2,9 @@ require 'pstore'
 
 module CipherMyUrl
   module MyDB
+    
     module Adapters
-      
+      # This module-adapter loads at run-time by MyDB module. See db.rb.
       module Pstore
         extend self
 
@@ -25,18 +26,25 @@ module CipherMyUrl
           end
         end
 
-        def pack(data, pw)
+        # Return a generated slot number.
+        def pack(data, user, pw)
+          slot = nil
+          
           @store.transaction {
             @store['count'] += 1
-            @store[@store['count'].to_s] = {
+            slot = @store['count'].to_s
+            @store[slot] = {
               data: data,
-              pw: pw
+              user: user,
+              pwhash: pw
             }
           }
+
+          slot
         end
         
       end
-
     end
+    
   end
 end
