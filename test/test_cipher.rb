@@ -69,7 +69,7 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
   def test_api_pack
     CipherMyUrl::MyDB.pack 'asdfghsdfsdfsdf', 'a@b.com', 'wsx22222222222222'
     CipherMyUrl::MyDB.pack 'zxcvbnsdfdffdff', 'a@b.com', 'rfv333333333333'
-    
+
     sio = StringIO.new '{}'
     assert_raises(CipherMyUrl::ApiBadRequestError) {
       CipherMyUrl::Api.packRequestRead sio
@@ -94,8 +94,28 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }
     assert_match /data must be in range/, e.message
-    
+
     sio = StringIO.new '{"data": 12345678912, "pw": 12345678, "keyshash": "%s"}' % [CipherMyUrl::Api::BROWSER_USER_KEYSHASH]
     CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
   end
+
+  def test_api_unpack
+    CipherMyUrl::MyDB.pack 'asdfghsdfsdfsdf', 'a@b.com', 'wsx22222222222222'
+    CipherMyUrl::MyDB.pack 'zxcvbnsdfdffdff', 'a@b.com', 'rfv333333333333'
+
+    assert_raises(CipherMyUrl::ApiBadRequestError) {
+      CipherMyUrl::Api.unpackRequestRead nil
+    }
+    assert_raises(CipherMyUrl::ApiBadRequestError) {
+      CipherMyUrl::Api.unpack nil
+    }
+    assert_raises(CipherMyUrl::ApiInvalidSlotError) {
+      CipherMyUrl::Api.unpack({slot: '0', pw: '2'})
+    }
+    assert_raises(CipherMyUrl::ApiUnauthorizedError) {
+      CipherMyUrl::Api.unpack({slot: '1', pw: '2'})
+    }
+    assert_equal 'asdfghsdfsdfsdf', CipherMyUrl::Api.unpack({slot: '1', pw: 'wsx22222222222222'})
+  end
+  
 end

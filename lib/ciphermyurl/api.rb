@@ -56,18 +56,24 @@ module CipherMyUrl
     end
 
     def valid_unpackRequest?(req)
-      return if req['slot'] && req['pw']
-      raise ApiBadRequestError, 'slot and password are both required'
+      if req && req['slot'] && req['pw']
+        r = {}
+        r[:slot] = req['slot'].to_s
+        r[:pw] = req['pw'].to_s
+        r
+      else
+        raise ApiBadRequestError, 'slot and password are both required'
+      end
     end
     
     # data is a hash { slot: '...', pw: '...' }
     def unpack(req)
-      valid_slot?(req[:slot])
+      Data.valid_slot?(req ? req[:slot] : nil) rescue raise ApiBadRequestError, $!
       
-      data = CipherMyUrl::MyDB[req['slot']]
-      raise ApiInvalidSlotError, "no such slot"
+      data = CipherMyUrl::MyDB[req[:slot]]
+      raise ApiInvalidSlotError, "no such slot" unless data
 
-      if data[:pwhash] != Digest::MD5.hexdigest(req['pw'])
+      if data[:pwhash] != Digest::MD5.hexdigest(req[:pw])
         raise ApiUnauthorizedError, "invalid password"
       end
 

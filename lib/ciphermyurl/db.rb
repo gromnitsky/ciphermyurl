@@ -37,7 +37,7 @@ module CipherMyUrl
     end
 
     def valid_slot?(slot)
-      s = s.to_s
+      s = slot.to_s
       unless s.match(/^\d+$/)
         fail "slot must be an unsigned integer"
       end
@@ -66,16 +66,11 @@ module CipherMyUrl
     end
 
     def [](key)
-      adapter.getValue(key)
+      adapter.getValue key
     end
 
     def getCount
-      adapter.getValue('count')
-    end
-
-    # Yes, I need a boolean, not actual value. Stop laughing.
-    def key?(key)
-      adapter.getValue(key) ? true : false
+      adapter.getValue 'count'
     end
 
     # [user]  email

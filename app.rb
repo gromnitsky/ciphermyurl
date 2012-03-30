@@ -1,5 +1,6 @@
 require 'pp'
 require 'pathname'
+require 'ostruct'
 
 require_relative 'lib/ciphermyurl/db'
 require_relative 'lib/ciphermyurl/api'
@@ -8,6 +9,15 @@ include CipherMyUrl
 
 require_relative 'config/sinatra'
 require_relative 'config/init'
+
+configure do
+  set :myError, OpenStruct.new
+end
+
+error 400..510 do
+  "<h1>#{response.status}</h1>\n" +
+    (settings.myError.last ? "Error: #{settings.myError.last}\n" : "")
+end
 
 # Return a generated slot number as 201 with text/plain or http error:
 #
@@ -27,13 +37,17 @@ post "/api/#{Api::VERSION}/pack" do
     slot = Api.pack Api.packRequestRead(request.body)
     fail RuntimeError, 'failed to create a new slot' unless slot
   rescue ApiUnauthorizedError
-    halt 401, $!
+    settings.myError.last = $!
+    halt 401
   rescue ApiBadRequestError
-    halt 400, $!
-  else
-    halt 500, $!
+    settings.myError.last = $!
+    halt 400
+  rescue
+    settings.myError.last = $!
+    halt 500
   end
 
+  content_type 'text/plain'
   slot
 end
 
@@ -54,15 +68,20 @@ get "/api/#{Api::VERSION}/unpack" do
     r = Api.unpack Api.unpackRequestRead(params)
     fail RuntimeError, 'unpack failed' unless r
   rescue ApiBadRequestError
-    halt 400, $!
+    settings.myError.last = $!
+    halt 400
   rescue ApiUnauthorizedError
-    halt 403, $!
+    settings.myError.last = $!
+    halt 403
   rescue ApiInvalidSlotError
-    halt 404, $!
-  else
-    halt 500, $!
+    settings.myError.last = $!
+    halt 404
+  rescue
+    settings.myError.last = $!
+    halt 500
   end
-  
+
+  content_type 'text/plain'
   r
 end
 
