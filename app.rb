@@ -1,6 +1,6 @@
-require 'pp'
 require 'pathname'
 require 'ostruct'
+require 'sinatra'
 
 require_relative 'lib/ciphermyurl/db'
 require_relative 'lib/ciphermyurl/api'
@@ -8,7 +8,6 @@ require_relative 'lib/ciphermyurl/auth'
 include CipherMyUrl
 
 require_relative 'config/sinatra'
-require_relative 'config/init'
 
 configure do
   set :myError, OpenStruct.new
