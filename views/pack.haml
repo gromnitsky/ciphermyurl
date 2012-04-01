@@ -1,1 +1,24 @@
 %h1 Pack
+
+%noscript
+  %b Dude, this page requires JavaScript.
+
+%form(method='post' action='/b/pack')
+  - if flash[:error]
+    %p.error
+      %b Error:
+      = flash[:error]
+  %p
+    Type URL or just any text (#{data_max} bytes max):
+    %br/
+    %textarea(name='data' rows='10' cols='80')
+      = my_session[:data]
+    %br/
+    Password is mandatory (#{pw_min} bytes min):
+    %input(name='pw' type='text' value="#{my_session[:pw]}")
+
+    %p
+      = recaptcha_tag(:ajax, display: {theme: 'white'})
+
+    %input(type='submit')
+-#    %input(type='reset')

@@ -8,3 +8,5 @@ require 'pstore'
 require 'sinatra'
 require 'uri'
 require 'yaml'
+require 'rack/recaptcha'
+

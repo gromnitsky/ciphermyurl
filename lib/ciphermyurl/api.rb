@@ -1,4 +1,5 @@
 require 'json'
+require 'net/http'
 
 require_relative 'db'
 require_relative 'auth'

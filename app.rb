@@ -1,6 +1,11 @@
 require 'pathname'
 require 'ostruct'
 require 'sinatra'
+require 'rack/recaptcha'
+require 'net/http'
+require 'stringio'
+
+require_relative 'vendor/flash'
 
 require_relative 'lib/ciphermyurl/db'
 require_relative 'lib/ciphermyurl/api'
@@ -9,14 +14,30 @@ include CipherMyUrl
 
 require_relative 'config/sinatra'
 
+enable :sessions
+use Rack::Flash, sweep: true
+
+use Rack::Recaptcha, public_key: settings.recaptcha_public_key, private_key: settings.recaptcha_private_key
+helpers Rack::Recaptcha::Helpers
+
 configure do
-  set :myError, OpenStruct.new
+  set :sessions, :expire_after => 4 # seconds
+end
+
+helpers do
+  def myhalt(code, msg)
+    headers "X-My-Error" => msg.to_s if msg
+  
+    session[:halt] = msg.to_s
+    halt code
+  end
 end
 
 error 400..510 do
   "<h1>#{response.status}</h1>\n" +
-    (settings.myError.last ? "Error: #{settings.myError.last}\n" : "")
+    (session[:halt] ? "Error: #{session[:halt]}\n" : "")
 end
+
 
 # Return a generated slot number as 201 with text/plain or http error:
 #
@@ -30,20 +51,18 @@ end
 #
 # FIXME: check request.content_length
 post "/api/#{Api::VERSION}/pack" do
+#  pp request
   request.body.rewind
   slot = nil
   begin
     slot = Api.pack Api.packRequestRead(request.body)
     fail RuntimeError, 'failed to create a new slot' unless slot
   rescue ApiUnauthorizedError
-    settings.myError.last = $!
-    halt 401
+    myhalt 401, $!
   rescue ApiBadRequestError
-    settings.myError.last = $!
-    halt 400
+    myhalt 400, $!
   rescue
-    settings.myError.last = $!
-    halt 500
+    myhalt 500, $!
   end
 
   content_type 'text/plain'
@@ -67,17 +86,13 @@ get "/api/0.0.1/unpack" do
     r = Api.unpack Api.unpackRequestRead(params)
     fail RuntimeError, 'unpack failed' unless r
   rescue ApiBadRequestError
-    settings.myError.last = $!
-    halt 400
+    myhalt 400, $!
   rescue ApiUnauthorizedError
-    settings.myError.last = $!
-    halt 403
+    myhalt 403, $!
   rescue ApiInvalidSlotError
-    settings.myError.last = $!
-    halt 404
+    myhalt 404, $!
   rescue
-    settings.myError.last = $!
-    halt 500
+    myhalt 500, $!
   end
 
   content_type 'text/plain'
@@ -94,6 +109,20 @@ helpers do
     h['QUERY_STRING'] = query_string if query_string
     call env.merge(h)
   end
+  
+  def local_post(url, data)
+#    pp env
+    env['rack.input'], env['data.input'] = StringIO.new(data), env['rack.input']
+    call env.merge('PATH_INFO' => url)
+  end
+
+  def redirect_with_session(path, params)
+    if params
+      params.each {|k,v| session[k] = v }
+    end
+
+    redirect path
+  end
 end
 
 # Optional params:
@@ -102,7 +131,7 @@ end
 get %r{/([0-9]+)} do |slot|
   data = nil
   if params['pw']
-    # run api call to unpack the slot
+    # run rack call to unpack the slot
     status, headers, body = local_get "/api/#{Api::VERSION}/unpack", "slot=#{slot}&pw=#{params['pw']}"
     data = body.first if status == 200
   end
@@ -111,6 +140,51 @@ get %r{/([0-9]+)} do |slot|
 end
 
 get '/' do
-  haml :pack
+  haml :pack, :locals => {
+    data_max: CipherMyUrl::Data::DATA_MAX,
+    pw_min: CipherMyUrl::Data::PW_MIN,
+    recaptcha_public_key: settings.recaptcha_public_key,
+    
+    my_session: session,
+  }
 end
 
+# Request body must contain:
+#
+# data
+# pw
+# recaptcha_challenge_field
+# recaptcha_response_field
+post '/b/pack' do
+  unless recaptcha_valid?
+    flash[:error] = 'captcha validation failed'
+    redirect_with_session('/', params)
+  end
+
+  status, headers, body = local_post("/api/#{Api::VERSION}/pack", {
+                                       data: params['data'],
+                                       pw: params['pw'],
+                                       keyshash: Api::BROWSER_USER_KEYSHASH
+                                     }.to_json)
+  # begin
+  #   http = Net::HTTP.new env['SERVER_NAME'], env['SERVER_PORT']
+  #   r = http.request_post("/api/#{Api::VERSION}/pack", {
+  #                           data: params['data'],
+  #                           pw: params['pw'],
+  #                           keyshash: Api::BROWSER_USER_KEYSHASH
+  #                         }.to_json)
+  # rescue
+  #   myhalt 500, $!
+  # end
+
+  unless status == 200
+    flash[:error] = headers['X-My-Error']
+    redirect_with_session('/', params)
+  end
+
+  session.clear
+  haml :b_pack, :locals => {
+    slot: body.first,
+    pw: params[:pw]
+  }
+end
