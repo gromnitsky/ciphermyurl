@@ -1,4 +1,24 @@
 %h1 Unpack
 
-= key
-is ...
+- unless data
+  %form#unpack
+    %p
+      To display slot ##{slot}, type its password:
+      %input(type='text' id='pw')
+      %input(type='submit')
+
+%form
+  %p
+    %textarea#data(readonly='readonly' rows='10' cols='80')
+      =data
+
+%form#unpackother
+  %fieldset
+    %legend
+      Another Query
+    Slot #
+    %input(type='text' id='slot')
+    Password:
+    %input(type='text' id='pw')
+    %input(type='submit')
+    %input(type='reset')

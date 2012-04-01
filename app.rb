@@ -61,7 +61,7 @@ end
 # [403]  password is invalid
 # [404]  slot not found
 # [500]  couldn't unpack
-get "/api/#{Api::VERSION}/unpack" do
+get "/api/0.0.1/unpack" do
   r = nil
   begin
     r = Api.unpack Api.unpackRequestRead(params)
@@ -87,8 +87,27 @@ end
 
 ### User in the browser
 
-get /([0-9]+)/ do |key|
-  haml :unpack, :locals => { key: key }
+helpers do
+  def local_get(url, query_string = nil)
+    h = {}
+    h['PATH_INFO'] = url
+    h['QUERY_STRING'] = query_string if query_string
+    call env.merge(h)
+  end
+end
+
+# Optional params:
+#
+# [pw]  a password for unpacking the slot
+get %r{/([0-9]+)} do |slot|
+  data = nil
+  if params['pw']
+    # run api call to unpack the slot
+    status, headers, body = local_get "/api/#{Api::VERSION}/unpack", "slot=#{slot}&pw=#{params['pw']}"
+    data = body.first if status == 200
+  end
+  
+  haml :unpack, :locals => { slot: slot, data: data }
 end
 
 get '/' do
