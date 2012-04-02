@@ -1,4 +1,16 @@
+- content_for :title do
+  %title #{project} :: Pack
+
+- content_for :script do
+  %script(type='text/javascript' src='/js/vendor/jquery-1.7.2.min.js')
+  %script(type='text/javascript' src='/js/vendor/jquery.cookie.js')
+  %script(type='text/javascript' src='/js/pack.js')
+  
+= menu('Pack')
+  
 %h1 Pack
+
+%span#warning
 
 %noscript
   %b Dude, this page requires JavaScript.
@@ -11,14 +23,14 @@
   %p
     Type URL or just any text (#{data_max} bytes max):
     %br/
-    %textarea(name='data' rows='10' cols='80')
+    %textarea#data(name='data' rows='10' cols='80')
       = my_session[:data]
     %br/
     Password is mandatory (#{pw_min} bytes min):
     %input(name='pw' type='text' value="#{my_session[:pw]}")
 
     %p
-      = recaptcha_tag(:ajax, display: {theme: 'white'})
-
+      = drawCaptcha('white')
+      
     %input(type='submit')
--#    %input(type='reset')
+    %input(type='reset')

@@ -1,15 +1,18 @@
 !!! Strict
 %html(xmlns="http://www.w3.org/1999/xhtml")
   %head
-    %title Cipher My URL
-    %script(type='text/javascript' src='/js/vendor/jquery-1.7.2.min.js')
-    %script(type='text/javascript' src='/js/unpack.js')
+    = yield_content :title
+    = yield_content :script
   %body
     %div
       = yield
 
     %div#footer
       %p
-        About | API | User Help | Source Code
+        %a{href: url('/help/api')} API
+        |
+        %a{href: url("http://github.com/gromnitsky/#{project.downcase}")} Source Code
+        |
+        %a{href: url('/help/terms')} Terms of Use
 -#        %a(href='https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod')
 -#          Andrew Zubinski

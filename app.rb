@@ -4,6 +4,7 @@ require 'sinatra'
 require 'rack/recaptcha'
 require 'net/http'
 require 'stringio'
+require 'sinatra/outputbuffer'
 
 require_relative 'vendor/flash'
 
@@ -22,7 +23,7 @@ use Rack::Recaptcha, public_key: settings.recaptcha_public_key, private_key: set
 helpers Rack::Recaptcha::Helpers
 
 configure do
-  set :sessions, expire_after: 4 # seconds
+#  set :sessions, expire_after: 4 # seconds
   HDR_ERROR = "X-#{Meta::NAME}-Error"
 end
 
@@ -53,7 +54,6 @@ end
 #
 # FIXME: check request.content_length
 post "/api/#{Api::VERSION}/pack" do
-#  pp request
   request.body.rewind
   slot = nil
   begin
@@ -125,6 +125,51 @@ helpers do
 
     redirect path
   end
+
+  def menu(current)
+    m = {
+      "Pack" => url("/") ,
+      "Unpack" => url("/1?pw=12345678"),
+      "WTF?" => url("/about")
+    }
+
+    r = ""
+    separator = " | "
+    m.each {|k,v|
+      r << separator if r.size != 0
+      
+      if k == current
+        r << k
+      else
+        r << "<a href='#{v}'>#{k}</a>"
+      end
+    }
+
+    '<div id="menu">' + r + '</div>'
+  end
+
+  # Protect from double/triple/etc submitting the same data
+  def canPack?(data, pw)
+    fail 'packing is unprotected (disabled cookies?)' unless session[:pack_protection]
+
+    current = Digest::MD5.hexdigest(data + pw)
+    if settings.debug
+      puts "session=#{session[:pack_protection]}"
+      puts "current=#{current}, last=#{session[:pack_last]}"
+    end
+    
+    unless session[:pack_protection] == 0
+      fail 'you have submitted that data already' if session[:pack_last] == current
+    end
+      
+    session[:pack_last] = current
+    return true
+  end
+
+  def drawCaptcha(t)
+    return '[CAPTCHA]' if settings.debug
+    recaptcha_tag(:ajax, display: {theme: t})
+  end
 end
 
 # Optional params:
@@ -138,11 +183,18 @@ get %r{/([0-9]+)} do |slot|
     data = body.first if status == 200
   end
   
-  haml :unpack, :locals => { slot: slot, data: data }
+  haml :unpack, :locals => {
+    project: Meta::NAME,
+    slot: slot,
+    data: data
+  }
 end
 
 get '/' do
+  session[:pack_protection] ||= 0
   haml :pack, :locals => {
+    project: Meta::NAME,
+    
     data_max: CipherMyUrl::Data::DATA_MAX,
     pw_min: CipherMyUrl::Data::PW_MIN,
     recaptcha_public_key: settings.recaptcha_public_key,
@@ -163,18 +215,28 @@ post '/b/pack' do
     redirect_with_session('/', params)
   end
 
+  begin
+    canPack?(params[:data], params[:pw])
+  rescue
+    flash[:error] = $!.to_s
+    redirect_with_session('/', params)
+  end
+  
   status, headers, body = local_post("/api/#{Api::VERSION}/pack", {
                                        data: params['data'],
                                        pw: params['pw'],
                                        keyshash: Api::BROWSER_USER_KEYSHASH
                                      }.to_json)
   unless status == 200
+    session[:pack_protection] = 0
     flash[:error] = headers[HDR_ERROR]
     redirect_with_session('/', params)
   end
 
-  session.clear
+  session[:pack_protection] += 1
+  
   haml :b_pack, :locals => {
+    project: Meta::NAME,
     slot: body.first,
     pw: params[:pw]
   }

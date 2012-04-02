@@ -1,3 +1,12 @@
+- content_for :title do
+  %title #{project} :: Unpack
+
+- content_for :script do
+  %script(type='text/javascript' src='/js/vendor/jquery-1.7.2.min.js')
+  %script(type='text/javascript' src='/js/unpack.js')
+
+= menu('Unpack')
+    
 %h1 Unpack
 
 - unless data
