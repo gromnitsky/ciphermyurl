@@ -3,13 +3,16 @@
 - unless data
   %form#unpack
     %p
-      To display slot ##{slot}, type its password:
+      To display slot #
+      %span#slot<>
+        = slot
+      , type its password:
       %input(type='text' id='pw')
       %input(type='submit')
 
 %form
   %p
-    %textarea#data(readonly='readonly' rows='10' cols='80')
+    %textarea#data(rows='10' cols='80')
       =data
 
 %form#unpackother

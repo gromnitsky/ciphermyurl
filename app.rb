@@ -7,6 +7,7 @@ require 'stringio'
 
 require_relative 'vendor/flash'
 
+require_relative 'lib/ciphermyurl/meta'
 require_relative 'lib/ciphermyurl/db'
 require_relative 'lib/ciphermyurl/api'
 require_relative 'lib/ciphermyurl/auth'
@@ -21,12 +22,13 @@ use Rack::Recaptcha, public_key: settings.recaptcha_public_key, private_key: set
 helpers Rack::Recaptcha::Helpers
 
 configure do
-  set :sessions, :expire_after => 4 # seconds
+  set :sessions, expire_after: 4 # seconds
+  HDR_ERROR = "X-#{Meta::NAME}-Error"
 end
 
 helpers do
   def myhalt(code, msg)
-    headers "X-My-Error" => msg.to_s if msg
+    headers HDR_ERROR => msg.to_s if msg
   
     session[:halt] = msg.to_s
     halt code
@@ -111,8 +113,8 @@ helpers do
   end
   
   def local_post(url, data)
-#    pp env
-    env['rack.input'], env['data.input'] = StringIO.new(data), env['rack.input']
+#    pp request.env
+    request.env['rack.input'], request.env['data.input'] = StringIO.new(data), request.env['rack.input']
     call env.merge('PATH_INFO' => url)
   end
 
@@ -166,19 +168,8 @@ post '/b/pack' do
                                        pw: params['pw'],
                                        keyshash: Api::BROWSER_USER_KEYSHASH
                                      }.to_json)
-  # begin
-  #   http = Net::HTTP.new env['SERVER_NAME'], env['SERVER_PORT']
-  #   r = http.request_post("/api/#{Api::VERSION}/pack", {
-  #                           data: params['data'],
-  #                           pw: params['pw'],
-  #                           keyshash: Api::BROWSER_USER_KEYSHASH
-  #                         }.to_json)
-  # rescue
-  #   myhalt 500, $!
-  # end
-
   unless status == 200
-    flash[:error] = headers['X-My-Error']
+    flash[:error] = headers[HDR_ERROR]
     redirect_with_session('/', params)
   end
 

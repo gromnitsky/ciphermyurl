@@ -14,9 +14,11 @@
       %td #{slot}
       %td #{pw}
       %td
-        %a{:href => url("/#{slot}")} #{url("/#{slot}")}
+        %a{href: url("/#{slot}"), target: "_blank"} #{url("/#{slot}")}
       %td
-        %a{:href => url("/#{slot}?pw=#{pw}")} Check
+        %a{href: url("/#{slot}?pw=#{pw}"), target: "_blank"} Check
 
 %p
-  %a(href='/') Pack another data.
+  %a(href='/')<>
+    Pack another data
+  \.

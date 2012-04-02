@@ -3,8 +3,8 @@ configure do
   MyDB.setAdapter(:pstore, file: settings.root + '/db/data.marshall')
   Api.apikeys_load settings.root + '/db/apikeys.yaml'
 
-  set :recaptcha_public_key, '6Lfprc8SAAAAABm18HWjWPA1TpWVJiK51yXWGDoh'
-  set :recaptcha_private_key, '6Lfprc8SAAAAAHf7yWF6tqq3ZNLbZw2l8lLWuy9M'
+  set :recaptcha_public_key, 'SET THIS'
+  set :recaptcha_private_key, 'SET THIS'
 end
 
 configure :development do
