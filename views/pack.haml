@@ -13,9 +13,10 @@
 %span#warning
 
 %noscript
-  %b Dude, this page requires JavaScript.
+  %p
+    %b Dude, this page requires JavaScript.
 
-%form(method='post' action='/b/pack')
+%form#pack(method='post' action='/b/pack')
   - if flash[:error]
     %p.error
       %b Error:
@@ -29,8 +30,9 @@
     Password is mandatory (#{pw_min} bytes min):
     %input(name='pw' type='text' value="#{my_session[:pw]}")
 
-    %p
-      = drawCaptcha('white')
-      
+  %p
+    = drawCaptcha('white')
+
+  %p
     %input(type='submit')
     %input(type='reset')

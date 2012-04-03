@@ -42,6 +42,16 @@ module CipherMyUrl
 
           slot
         end
+
+        def del(slot)
+          r = false
+          @store.transaction {
+            # Hash#delete return a deleted key value, and we need just a
+            # boolean
+            r = true unless @store.delete(slot)
+          }
+          r
+        end
         
       end
     end

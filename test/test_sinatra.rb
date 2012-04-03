@@ -1,5 +1,4 @@
 require 'rack/test'
-
 require_relative '../app'
 
 require_relative 'helper'
@@ -10,7 +9,7 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
   def app
     Sinatra::Application
   end
-  
+
   def setup
     # this runs every time before test_*
 
@@ -21,7 +20,7 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
     rm_rf data
     CipherMyUrl::MyDB.setAdapter :pstore, file: data
 
-    CipherMyUrl::MyDB.pack 'some random text', 'q@example.com', 'mystrongpassword'
+    CipherMyUrl::MyDB.pack 'some random text', 'john.doe@example.com', 'mystrongpassword'
   end
 
   def test_api_unpack
@@ -42,7 +41,8 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
       'data' => 'some+other+text',
       'pw' => '12345678'
     }
-    
+
+#    pp last_response
     assert last_response.ok?
     assert_match last_response.body, /your data was successfully added/
   end
@@ -55,14 +55,16 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
     }
     follow_redirect!
     
-#    pp last_request.env['rack.session']['halt']
+#    pp last_request.env['rack.session']
+#    pp last_response.body
     assert_match last_request.env['rack.session']['halt'], /data must be in range/
     assert last_response.ok?
 
     
     post '/b/pack', nil
     follow_redirect!
-    assert_equal "validation of JSON failed", last_request.env['rack.session']['halt']
+#    pp last_request
+    assert_match /data must be in range/, last_request.env['rack.session']['halt']
     assert last_response.ok?
   end
 
@@ -77,5 +79,20 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
     assert_equal "captcha validation failed", last_request.env['x-rack.flash'][:error]
     assert last_response.ok?
   end
-  
+
+  def test_del
+    delete "/api/#{Api::VERSION}/del?slot=1&keyshash=mystrongpassword"
+    assert_equal 403, last_response.status
+    assert_equal "invalid keyshash", last_response.header[HDR_ERROR]
+
+    # delete method must behave like idempotent
+    2.times {
+      delete "/api/#{Api::VERSION}/del?slot=1&keyshash=#{Api::BROWSER_USER_KEYSHASH}"
+      assert last_response.ok?
+    }
+
+    get "/api/#{Api::VERSION}/unpack?slot=1&pw=mystrongpassword"
+    assert_equal 404, last_response.status
+    assert_equal "no such slot", last_response.header[HDR_ERROR]
+  end
 end

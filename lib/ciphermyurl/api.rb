@@ -50,6 +50,7 @@ module CipherMyUrl
       CipherMyUrl::MyDB.pack data[:data], data[:email], data[:pw]
     end
 
+    # ---
     
     # req is a hash { 'slot' => '...', 'pw' => '...' }
     def unpackRequestRead(req)
@@ -79,6 +80,37 @@ module CipherMyUrl
       end
 
       data[:data]
+    end
+    
+    # ---
+    
+    # req is a hash { 'slot' => '...', 'keyshash' => '...' }
+    def delRequestRead(req)
+      valid_delRequest?(req)
+    end
+
+    def valid_delRequest?(req)
+      if req && req['slot'] && req['keyshash']
+        r = {}
+        r[:slot] = req['slot'].to_s
+        r[:keyshash] = req['keyshash'].to_s
+        r
+      else
+        raise ApiBadRequestError, 'slot and keyshash are both required'
+      end
+    end
+    
+    # data is a hash { slot: '...', keyshash: '...' }
+    def del(req)
+      Data.valid_slot?(req ? req[:slot] : nil) rescue raise ApiBadRequestError, $!
+      
+      data = CipherMyUrl::MyDB[req[:slot]]
+      return false unless data
+
+      raise ApiException, 'Auth DB is corrupted' unless keyshash = keyshash_findBy(data[:user])
+      raise ApiUnauthorizedError, "invalid keyshash" unless keyshash == req[:keyshash]
+
+      CipherMyUrl::MyDB.del req[:slot]
     end
     
   end

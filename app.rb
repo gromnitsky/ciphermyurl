@@ -101,6 +101,31 @@ get "/api/0.0.1/unpack" do
   r
 end
 
+# Required params:
+#
+# [slot]
+# [pw]
+#
+# Return empty http 200 with empty body or http error:
+#
+# [400]  bad request
+# [403]  password is invalid
+# [500]  couldn't delete, some nasty error
+delete '/api/0.0.1/del' do
+  begin
+    Api.del Api.delRequestRead(params)
+  rescue ApiBadRequestError
+    myhalt 400, $!
+  rescue ApiUnauthorizedError
+    myhalt 403, $!
+  rescue
+    myhalt 500, $!
+  end
+
+  content_type 'text/plain'
+  ""
+end
+
 
 ### User in the browser
 
@@ -181,6 +206,7 @@ get %r{/([0-9]+)} do |slot|
     # run rack call to unpack the slot
     status, headers, body = local_get "/api/#{Api::VERSION}/unpack", "slot=#{slot}&pw=#{params['pw']}"
     data = body.first if status == 200
+    flash[:error] = headers[HDR_ERROR] if headers[HDR_ERROR]
   end
   
   haml :unpack, :locals => {
@@ -191,7 +217,6 @@ get %r{/([0-9]+)} do |slot|
 end
 
 get '/' do
-  session[:pack_protection] ||= 0
   haml :pack, :locals => {
     project: Meta::NAME,
     
@@ -210,6 +235,8 @@ end
 # recaptcha_challenge_field
 # recaptcha_response_field
 post '/b/pack' do
+  session[:pack_protection] ||= 0
+  
   unless recaptcha_valid?
     flash[:error] = 'captcha validation failed'
     redirect_with_session('/', params)

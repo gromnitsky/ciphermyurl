@@ -65,8 +65,8 @@ module CipherMyUrl
       end
     end
 
-    def [](key)
-      adapter.getValue key
+    def [](slot)
+      adapter.getValue slot
     end
 
     def getCount
@@ -82,6 +82,12 @@ module CipherMyUrl
       data = Data.clean data
       
       adapter.pack data, user, Digest::MD5.hexdigest(pw)
+    end
+
+    def del(slot)
+      slot = Data.valid_slot?(slot)
+      
+      adapter.del slot
     end
     
   end

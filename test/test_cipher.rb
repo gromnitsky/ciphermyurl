@@ -40,6 +40,19 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     
   end
 
+  def test_del
+    CipherMyUrl::MyDB.pack 'asdfghsdfsdfsdf', 'a@b.com', 'wsx22222222222222'
+    assert_equal({
+                   data: 'asdfghsdfsdfsdf',
+                   user: 'a@b.com', 
+                   pwhash: '8b73016783258b9c87390d9c5a676324'
+                 }, CipherMyUrl::MyDB['1'])
+    
+    assert_raises(RuntimeError) { CipherMyUrl::MyDB.del nil }
+    CipherMyUrl::MyDB.del 1
+    assert_equal nil, CipherMyUrl::MyDB[1]
+  end
+
   def test_uri
     assert_equal false, CipherMyUrl::Data.valid_uri?('123')
     assert_equal true, CipherMyUrl::Data.valid_uri?('http://localhost?q=qwq&=323')
@@ -61,9 +74,10 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
 
   def test_auth
     assert_equal 'john.doe@example.com', CipherMyUrl::Api.getBrowserUser[:email]
-    assert_equal CipherMyUrl::Api::BROWSER_USER_PUBLIC, CipherMyUrl::Api.apikeys_findBy('john.doe@example.com')
-    assert_equal 'john.doe@example.com', CipherMyUrl::Api.apikeys_findBy(CipherMyUrl::Api::BROWSER_USER_PUBLIC)
-    assert_equal nil, CipherMyUrl::Api.apikeys_findBy('q@b.com')
+    
+    assert_equal CipherMyUrl::Api::BROWSER_USER_KEYSHASH, CipherMyUrl::Api.keyshash_findBy('john.doe@example.com')
+    assert_equal CipherMyUrl::Api::BROWSER_USER_KEYSHASH, CipherMyUrl::Api.keyshash_findBy(CipherMyUrl::Api::BROWSER_USER_PUBLIC)
+    assert_equal nil, CipherMyUrl::Api.keyshash_findBy('q@b.com')
   end
 
   def test_api_pack
@@ -117,5 +131,22 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     }
     assert_equal 'asdfghsdfsdfsdf', CipherMyUrl::Api.unpack({slot: '1', pw: 'wsx22222222222222'})
   end
+
+  def test_api_delete
+    CipherMyUrl::MyDB.pack 'asdfghsdfsdfsdf', 'john.doe@example.com', 'wsx22222222222222'
+    CipherMyUrl::MyDB.pack 'zxcvbnsdfdffdff', 'john.doe@example.com', 'rfv333333333333'
+    
+    assert_raises(CipherMyUrl::ApiBadRequestError) {
+      CipherMyUrl::Api.delRequestRead nil
+    }
+    assert_raises(CipherMyUrl::ApiBadRequestError) {
+      CipherMyUrl::Api.del nil
+    }
+
+    CipherMyUrl::Api.del({slot: '1', keyshash: CipherMyUrl::Api::BROWSER_USER_KEYSHASH})
+    assert_raises(CipherMyUrl::ApiInvalidSlotError) {
+      CipherMyUrl::Api.unpack({slot: '1', pw: 'wsx22222222222222'})
+    }
+   end
   
 end

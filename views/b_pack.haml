@@ -8,22 +8,16 @@
 %p
   Unfortunately, your data was successfully added to our DB.
 
-%p
-  %table#packresults(border='1' cellpadding='5')
-    %tr
-      %th Slot
-      %th Password
-      %th URL
-      %th URL With Password
-    %tr
-      %td #{slot}
-      %td #{pw}
-      %td
-        %a{href: url("/#{slot}"), target: "_blank"} #{url("/#{slot}")}
-      %td
-        %a{href: url("/#{slot}?pw=#{pw}"), target: "_blank"} Check
-
-%p
-  %a(href='/')<>
-    Pack another data
-  \.
+%table#packresults(border='1' cellpadding='5')
+  %tr
+    %th Slot
+    %th Password
+    %th URL
+    %th URL With Password
+  %tr
+    %td #{slot}
+    %td #{pw}
+    %td
+      %a{href: url("/#{slot}"), target: "_blank"} #{url("/#{slot}")}
+    %td
+      %a{href: url("/#{slot}?pw=#{pw}"), target: "_blank"} Check

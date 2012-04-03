@@ -9,7 +9,13 @@
     
 %h1 Unpack
 
-- unless data
+- if flash[:error]
+  .error
+    %p
+      %b Error:
+      = flash[:error]
+    
+- if !data
   %form#unpack
     %p
       To display slot #

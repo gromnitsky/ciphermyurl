@@ -1,0 +1,11 @@
+-*- org -*-
+
+* TODO Next version
+
+- [ ] JS (de)ciphering of a data in a browser: user knows a password, so
+      he ciphers the data and sent it to us encrypted + a hash of a
+      password. We cannot decrypt the data because of the password
+      hash. But in unpack mode, user knows the password, so he decrypts
+      the data in the browser.
+
+- [ ] Visual indicator of the number of characters in the textarea.

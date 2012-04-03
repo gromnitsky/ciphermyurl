@@ -15,7 +15,7 @@ Unpack.FORM_SUBMIT = 'input[type="submit"]'
 Unpack.FORM_RESET = 'input[type="reset"]'
 Unpack.TEXTAREA = 'textarea#data'
 
-Unpack.prototype.getData = function() {
+Unpack.prototype.apiGetDataAndFill = function() {
 	$(Unpack.FORM_SUBMIT).attr("disabled", true)
 	var url = '/api/'+ Unpack.API_VERSION +'/unpack'
 	
@@ -44,7 +44,7 @@ Unpack.prototype.setTextarea = function(data) {
 Unpack.prototype.mybind = function() {
     var o = this
     $(Unpack.FORM_SUBMIT, this.form).click(function() {
-        o.getData()
+        o.apiGetDataAndFill()
         return false
     })
 

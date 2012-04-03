@@ -44,14 +44,13 @@ module CipherMyUrl
       authenticated? BROWSER_USER_KEYSHASH
     end
 
-    # Probably useless
-    def apikeys_findBy(query)
+    def keyshash_findBy(query)
       @table.each {|key, val|
         if query.index('@')
           # find by email
-          return val[:uuid] if val[:email] == query
+          return key if val[:email] == query
         else
-          return val[:email] if val[:uuid] == query
+          return key if val[:uuid] == query
         end
       }
       nil

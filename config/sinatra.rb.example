@@ -1,23 +1,25 @@
 configure do
-  # Databases for production and developer modes
-  MyDB.setAdapter(:pstore, file: settings.root + '/db/data.marshall')
-  Api.apikeys_load settings.root + '/db/apikeys.yaml'
-
+  set :debug, false
   set :recaptcha_public_key, 'SET THIS'
   set :recaptcha_private_key, 'SET THIS'
+end
+
+configure :production, :development do
+  # 2 db
+  MyDB.setAdapter(:pstore, file: settings.root + '/db/data.marshall')
+  Api.apikeys_load settings.root + '/db/apikeys.yaml'
 end
 
 configure :development do
   # Ignore captcha
   Rack::Recaptcha.test_mode! :return => true
+
+  # Captcha do not displayed if true
+  set :debug, true
 end
 
 configure :production do
   set :haml, ugly: true
 end
 
-configure :test do
-  set :db_dir, File.dirname(__FILE__).parent + 'test/example/01'
-  MyDB.setAdapter(:pstore, file: settings.db_dir + 'data.marshall')
-  Api.apikeys_load settings.db_dir + 'apikeys.yaml'
-end
+# for :test config, see test/helpers.rb
