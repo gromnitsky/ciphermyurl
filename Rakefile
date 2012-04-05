@@ -23,3 +23,12 @@ RDoc::Task.new('html') do |i|
   i.rdoc_files = FileList['doc/*', 'lib/**/*.rb', '*.rb']
 #  i.rdoc_files.exclude("lib/**/some-nasty-staff")
 end
+
+desc "Our CSS"
+file 'public/style.css' => 'public/bootstrap' do |t|
+  sh "lessc #{t.prerequisites.first}/main.less -o #{t.name}"
+end
+
+task :clean do |i|
+  rm_rf 'public/style.css'
+end

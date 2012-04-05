@@ -1,7 +1,8 @@
 - content_for :title do
   %title #{project} :: Pack Results :: #{slot}
 
-= menu(nil)
+- content_for :menu do
+  = menu(nil)
 
 %h1 Pack Results
 

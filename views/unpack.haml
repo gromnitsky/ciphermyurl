@@ -5,15 +5,16 @@
   %script(type='text/javascript' src='/js/vendor/jquery-1.7.2.min.js')
   %script(type='text/javascript' src='/js/unpack.js')
 
-= menu('Unpack')
+- content_for :menu do
+  = menu('Unpack')
     
 %h1 Unpack
 
 - if flash[:error]
-  .error
-    %p
-      %b Error:
-      = flash[:error]
+  .alert.alert-error
+    %b
+      Error:
+    = flash[:error]
     
 - if !data
   %form#unpack

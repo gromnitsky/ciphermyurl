@@ -155,22 +155,30 @@ helpers do
     m = {
       "Pack" => url("/") ,
       "Unpack" => url("/1?pw=12345678"),
+      "-" => nil,
       "WTF?" => url("/about")
     }
 
     r = ""
-    separator = " | "
     m.each {|k,v|
-      r << separator if r.size != 0
-      
       if k == current
-        r << k
+        r << "<li class='active'><a href='#'>#{k}</a></li>\n"
+      elsif k == '-'
+        r << "<li class='divider-vertical'></li>"
       else
-        r << "<a href='#{v}'>#{k}</a>"
+        r << "<li><a href='#{v}'>#{k}</a></li>\n"
       end
     }
 
-    '<div id="menu">' + r + '</div>'
+    "\
+<div class='navbar navbar-fixed-top'>
+  <div class='navbar-inner'>
+    <div class='container-fluid'>
+      <span class='brand'>#{Meta::NAME}</span>
+         <ul class='nav'>#{r}</ul>
+    </div>
+  </div>
+</div>"
   end
 
   # Protect from double/triple/etc submitting the same data

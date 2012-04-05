@@ -6,22 +6,24 @@
   %script(type='text/javascript' src='/js/vendor/jquery.cookie.js')
   %script(type='text/javascript' src='/js/pack.js')
   
-= menu('Pack')
-  
+- content_for :menu do
+  = menu('Pack')
+
 %h1 Pack
 
 %span#warning
 
-%noscript
-  %p
-    %b Dude, this page requires JavaScript.
+%noscript.alert.alert-error
+  Dude, this page requires JavaScript.
 
 %form#pack(method='post' action='/b/pack')
-  - if flash[:error]
-    %p.error
-      %b Error:
-      = flash[:error]
   %p
+    - if flash[:error]
+      .alert.alert-error
+        %b
+          Error:
+        = flash[:error]
+        
     Type URL or just any text (#{data_max} bytes max):
     %br/
     %textarea#data(name='data' rows='10' cols='80')

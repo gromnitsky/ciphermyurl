@@ -1,18 +1,28 @@
-!!! Strict
-%html(xmlns="http://www.w3.org/1999/xhtml")
+!!! 5
+%html
   %head
     = yield_content :title
     = yield_content :script
-  %body
-    #yield
-      = yield
+    %link(rel="stylesheet" href="/style.css")
 
-    #footer
-      %p
-        %a{href: url('/help/api')} API
-        |
-        %a{href: url("http://github.com/gromnitsky/#{project.downcase}")} Source Code
-        |
-        %a{href: url('/help/terms')} Terms of Use
--#        %a(href='https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod')
--#          Andrew Zubinski
+  %body
+    = yield_content :menu
+    
+    .container-fluid
+      .row-fluid
+        .span9
+          = yield
+        .span3
+          [ad]
+
+    %footer.container-fluid
+      .row-fluid
+        .span3
+          %img(src="/sadhipster.png" alt='Sad Hipster')
+        .span9
+          %p
+            %a{href: url('/help/api')} API
+            %br/
+            %a{href: url("http://github.com/gromnitsky/#{project.downcase}")} Source Code
+            %br/
+            %a{href: url('/help/terms')} Terms of Use
