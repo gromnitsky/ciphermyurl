@@ -171,7 +171,7 @@ helpers do
     }
 
     "\
-<div class='navbar navbar-fixed-top'>
+<div class='navbar'>
   <div class='navbar-inner'>
     <div class='container-fluid'>
       <span class='brand'>#{Meta::NAME}</span>

@@ -8,12 +8,10 @@
   %body
     = yield_content :menu
     
-    .container-fluid
+    .container-fluid#content
       .row-fluid
-        .span9
+        .span12#yield
           = yield
-        .span3
-          [ad]
 
     %footer.container-fluid
       .row-fluid
