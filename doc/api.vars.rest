@@ -1,0 +1,6 @@
+.. |name| replace:: CipherMyUrl
+.. |version| replace:: 0.0.1
+.. |author| replace:: Alexander Gromnitsky
+.. |email| replace:: alexander.gromnitsky@gmail.com
+.. |homepage| replace:: http://github.com/gromnitsky/CipherMyUrl
+.. |apiversion| replace:: 0.0.1

@@ -24,10 +24,11 @@
           Error:
         = flash[:error]
         
-    Type URL or just any text (#{data_max} bytes max):
+    Type a URL or just any text (#{data_max} bytes max):
     %br/
-    %textarea#data(name='data' rows='10' cols='80')
-      = my_session[:data]
+    = find_and_preserve do
+      %textarea#data(name='data' rows='10' cols='80')
+        = my_session[:data]
     %br/
     Password is mandatory (#{pw_min} bytes min):
     %input(name='pw' type='text' value="#{my_session[:pw]}")

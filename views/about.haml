@@ -1,0 +1,86 @@
+- content_for :title do
+  %title #{project} :: About
+
+- content_for :menu do
+  = menu('WTF?')
+
+.container-fluid
+  .row-fluid
+    .span6
+      %h1 About
+
+      .well
+        Total packs: #{packsCount}
+
+      %p
+        The original idea came from this clever guy:
+        = succeed '.' do
+          %a(href="https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod") https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
+
+      %p
+        For non-russian speakers: in public networks you may bump into
+        URL censoring. You send a link to your friend but suddenly a
+        transfer agent (TA) thinks that the link is 'bad' and he
+        silently cuts it from your message. What th...
+
+      %p
+        You may try to use a url shortener, but nothing can prevent TA
+        to resolve such link by himself and filter it again.
+
+      %p
+        So here it comes #{project}--a 'cipher' that hides any text (not
+        just a URL) behind a number & a password. Bob doesn't sent to
+        Alice a URL, Bob sent a number that corresponds to the
+        URL. (It's very unlikely that any TA will filter numbers like
+        456334 from messages.) Alice goes to #{project} and enters
+        the number + password pair. It's possible, of course, to give
+        her a URL with the already filled number and the password or
+        just with the number.
+
+      %p
+        (The password exchange mechanism between Bob & Alice is out of
+        scope of #{project}. For true secure communication nothing beats
+        public-key cryptography (read: PGP, GnuPG).)
+
+      %h2 Terminology
+
+      %dl
+        %dt Slot
+        %dd
+          A number that represent a data behind it. You cannot choose it
+          by yourself--#{project} will automatically generate it for
+          you.
+
+        %dt To pack
+        %dd
+          To add some data to the #{project}. After packing you'll get a
+          slot.
+
+        %dt To unpack
+        %dd
+          To decipher a slot. You'll need a password for that. (It is not
+          possible to make a slot without the password.)
+          
+    .span6
+      %h2 Current Status
+
+      %p
+        
+        Pre-alpha stage. Nothing is certain, so feel free
+        = succeed '.' do
+          %a{href: "mailto:flower.henry@yahoo.com?Subject=#{project}"} to sent your suggestions
+
+      %p
+
+        Despite its name, #{project} doesn't cipher anything--you
+        password is hashed but the data goes as is--it's up to a client
+        to encrypt it. Web-based part of #{project} is a client, but due
+        to the fact that
+
+        = succeed ',' do
+          %a(href='http://www.matasano.com/articles/javascript-cryptography/') Javascript Cryptography Considered Harmful
+
+        we need to do that under TLS.
+
+      %p
+        Current database (PStore) is a joke.

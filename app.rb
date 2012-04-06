@@ -53,7 +53,7 @@ end
 # { data: '...', pw: '...', keyshash: '...' }
 #
 # FIXME: check request.content_length
-post "/api/#{Api::VERSION}/pack" do
+post "/api/0.0.1/pack" do
   request.body.rewind
   slot = nil
   begin
@@ -216,6 +216,8 @@ get %r{/([0-9]+)} do |slot|
     data = body.first if status == 200
     flash[:error] = headers[HDR_ERROR] if headers[HDR_ERROR]
   end
+
+  redirect data if CipherMyUrl::Data.valid_uri?(data)
   
   haml :unpack, :locals => {
     project: Meta::NAME,
@@ -274,5 +276,12 @@ post '/b/pack' do
     project: Meta::NAME,
     slot: body.first,
     pw: params[:pw]
+  }
+end
+
+get '/about' do
+  haml :about, :locals => {
+    project: Meta::NAME,
+    packsCount: MyDB.getCount
   }
 end

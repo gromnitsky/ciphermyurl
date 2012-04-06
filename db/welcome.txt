@@ -1,0 +1,4 @@
+Hi,
+
+Type a slot number with its password into a form below. If you forgot
+the password it is not possible to restore it, sorry.

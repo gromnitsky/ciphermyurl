@@ -28,8 +28,9 @@
 
 %form
   %p
-    %textarea#data(rows='10' cols='80')
-      =data
+    = find_and_preserve do
+      %textarea#data(rows='10' cols='80')
+        = data
 
 %form#unpackother
   %fieldset

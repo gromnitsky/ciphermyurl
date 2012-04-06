@@ -1,4 +1,5 @@
-@mygrey: #b0b0b0;
+@contentBackground: #f8f6f0;
+@bgTextureColor: #f1f1f1;
 
 body {
   margin: 0;
@@ -15,17 +16,16 @@ body {
 
 #content {
   padding-top: 20px;
-  background-color: #f8f6f0;
+  background-color: @contentBackground;
+  background: url("/bg_texture.jpg");
   border-bottom: 1px solid @grayLight;
   padding-bottom: 20px;
-  #gradient > .vertical(@grayLight, @white);
 }
 
 footer {
-//  margin-top: 20px;
   padding-top: 20px;
   padding-bottom: 20px;
-  background-color: @white;
+  #gradient > .vertical(@bgTextureColor, @white);
 }
 
 a {
