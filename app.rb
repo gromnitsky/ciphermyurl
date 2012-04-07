@@ -68,6 +68,7 @@ post "/api/0.0.1/pack" do
   end
 
   content_type 'text/plain'
+  status 201
   slot
 end
 
@@ -104,12 +105,12 @@ end
 # Required params:
 #
 # [slot]
-# [pw]
+# [keyshash]
 #
 # Return empty http 200 with empty body or http error:
 #
 # [400]  bad request
-# [403]  password is invalid
+# [403]  keyshash is invalid
 # [500]  couldn't delete, some nasty error
 delete '/api/0.0.1/del' do
   begin
@@ -264,7 +265,7 @@ post '/b/pack' do
                                        pw: params['pw'],
                                        keyshash: Api::BROWSER_USER_KEYSHASH
                                      }.to_json)
-  unless status == 200
+  unless status == 201
     session[:pack_protection] = 0
     flash[:error] = headers[HDR_ERROR]
     redirect_with_session('/', params)

@@ -21,8 +21,6 @@ rule '.xhtml' => ['.rst'] do |t|
   sh "rst2html #{t.source} #{t.name}"
 end
 
-file "#{Doc::ROOT}/api.xhtml" => Doc::VARS
-
 namespace 'doc' do
   task :clean do
     rm_rf Doc::VARS
@@ -30,5 +28,6 @@ namespace 'doc' do
   end
 
   desc 'Make all docs'
-  task :all => [Doc::XHTML]
+  task :all => Doc::VARS
+  task :all => Doc::XHTML
 end

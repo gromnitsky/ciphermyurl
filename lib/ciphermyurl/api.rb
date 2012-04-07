@@ -38,7 +38,7 @@ module CipherMyUrl
       end
 
       user = authenticated?(req[:keyshash])
-      raise ApiUnauthorizedError, "keyshash is missing in the our DB" unless user
+      raise ApiUnauthorizedError, "keyshash is missing in our DB" unless user
 
       data = req
       data[:email] = user[:email]

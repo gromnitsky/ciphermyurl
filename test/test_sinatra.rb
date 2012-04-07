@@ -31,7 +31,7 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
 
   def test_api_pack
     post "/api/#{Api::VERSION}/pack", '{"data": 12345678912, "pw": 12345678, "keyshash": "%s"}' % [Api::BROWSER_USER_KEYSHASH]
-    assert last_response.ok?
+    assert_equal 201, last_response.status
     assert_equal '2', last_response.body
   end
 
