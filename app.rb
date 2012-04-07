@@ -185,7 +185,7 @@ helpers do
   def canPack?(data, pw)
     fail 'packing is unprotected (disabled cookies?)' unless session[:pack_protection]
 
-    current = Digest::MD5.hexdigest(data + pw)
+    current = Digest::SHA256.hexdigest(data + pw)
     if settings.debug
       puts "session=#{session[:pack_protection]}"
       puts "current=#{current}, last=#{session[:pack_last]}"

@@ -20,6 +20,13 @@ module CipherMyUrl
     extend self
 
     VERSION = '0.0.1'
+
+    # [pw]    password in plain text
+    # [data]  value from MyDB[slot]
+    def pwEqual?(pw, data)
+      data[:pwhash] == Digest::SHA256.hexdigest(data[:data]+pw)
+    end
+    
     
     def packRequestRead(io)
       req = {}
@@ -68,14 +75,14 @@ module CipherMyUrl
       end
     end
     
-    # data is a hash { slot: '...', pw: '...' }
+    # req is a hash { slot: '...', pw: '...' }
     def unpack(req)
       Data.valid_slot?(req ? req[:slot] : nil) rescue raise ApiBadRequestError, $!
       
       data = CipherMyUrl::MyDB[req[:slot]]
       raise ApiInvalidSlotError, "no such slot" unless data
 
-      if data[:pwhash] != Digest::MD5.hexdigest(req[:pw])
+      unless pwEqual?(req[:pw], data)
         raise ApiUnauthorizedError, "invalid password"
       end
 

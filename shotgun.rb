@@ -1,4 +1,4 @@
-require 'digest/md5'
+require 'digest/sha2'
 require 'haml'
 require 'json'
 require 'ostruct'

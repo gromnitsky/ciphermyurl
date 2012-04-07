@@ -31,7 +31,7 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     assert_equal({
                    data: 'asdfghsdfsdfsdf',
                    user: 'a@b.com', 
-                   pwhash: '8b73016783258b9c87390d9c5a676324'
+                   pwhash: '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a'
                  }, CipherMyUrl::MyDB['2'])
 
     assert_raises(RuntimeError) {
@@ -45,7 +45,7 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     assert_equal({
                    data: 'asdfghsdfsdfsdf',
                    user: 'a@b.com', 
-                   pwhash: '8b73016783258b9c87390d9c5a676324'
+                   pwhash: '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a'
                  }, CipherMyUrl::MyDB['1'])
     
     assert_raises(RuntimeError) { CipherMyUrl::MyDB.del nil }
@@ -98,6 +98,7 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     }
 
     sio = StringIO.new '{"data": 1, "pw": 2, "keyshash": "%s"}' % [CipherMyUrl::Api::BROWSER_USER_KEYSHASH]
+#    pp CipherMyUrl::Api::BROWSER_USER_KEYSHASH
     e = assert_raises(RuntimeError) {
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }

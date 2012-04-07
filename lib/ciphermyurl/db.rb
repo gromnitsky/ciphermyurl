@@ -1,6 +1,6 @@
 require 'uri'
 require 'haml'
-require 'digest/md5'
+require 'digest/sha2'
 
 module CipherMyUrl
 
@@ -81,7 +81,7 @@ module CipherMyUrl
       pw = Data.valid_pw?(pw)
       data = Data.clean data
       
-      adapter.pack data, user, Digest::MD5.hexdigest(pw)
+      adapter.pack data, user, Digest::SHA256.hexdigest(data+pw)
     end
 
     def del(slot)
