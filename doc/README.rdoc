@@ -1,8 +1,16 @@
 = CipherMyUrl
 
-The original idea belongs to https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
+The original idea belongs to
+https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
+
 
 == Installation
+
+0. Install http://search.npmjs.org/#/less
+
+   Install bundler:
+
+     # gem install bundler
 
 1. Create initial configuration:
 
@@ -12,8 +20,10 @@ The original idea belongs to https://plus.google.com/102094915438818669469/posts
    Install all dependencies:
    
      # bundle install
-   or
-     % bundle install --path vendor
+
+   or (you'll have to prefix other commands with 'bundle exec' then)
+
+     % bundle install --path vendor/bundle
 
    Generate some defaults:
    
@@ -32,5 +42,15 @@ The original idea belongs to https://plus.google.com/102094915438818669469/posts
 
 4. (Unnecessary)
 
-   To generate API docs in xhtml, install recent python's (what a shame)
-   docutils.
+   To generate API docs in xhtml, install recent Python's (what a shame)
+   docutils and run:
+
+     % rake doc:all
+
+
+== Post Installation Isssues
+
+  % git add config/sinatra.rb config/crypto.rb db/apikeys.yaml Gemfile.lock
+  % git commit -a -m 'saving the config'
+
+<tt>db/data.marshall</tt> is your PStore db.
