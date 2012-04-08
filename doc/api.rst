@@ -4,8 +4,8 @@
 |name| API Spec
 ===============
 
-:Last Update: Time-stamp: <2012-04-08 22:33:35 EEST>
-:API Version: |apiversion|
+:Last Update: Time-stamp: <2012-04-09 02:15:33 EEST>
+:API Version: |api_version|
 
 .. contents::
 			  
@@ -167,9 +167,9 @@ A valid request with a new slot as a result::
 Unpack
 ``````
 
-HTTP GET to ``/api/0.0.1/unpack``. Required parameters:
+HTTP GET to ``/api/0.0.1/unpack/:slot``. Required parameters:
 
-* ``slot``
+* ``slot`` -- in URL
 * ``pw``
 
 Auth is unnecessary. Server returns:
@@ -192,7 +192,7 @@ Examples
 
 Client sends invalid password::
 
-  % curl -i 'http://localhost:9393/api/0.0.1/unpack?slot=123&pw=idontremember'
+  % curl -i 'http://localhost:9393/api/0.0.1/unpack/123?pw=idontremember'
 
   HTTP/1.1 403 Forbidden 
   X-Frame-Options: sameorigin
@@ -209,7 +209,7 @@ Client sends invalid password::
 
 A valid request::
 
-  % curl -i 'http://localhost:9393/api/0.0.1/unpack?slot=123&pw=12345678'
+  % curl -i 'http://localhost:9393/api/0.0.1/unpack/123?pw=12345678'
 
   HTTP/1.1 200 OK 
   X-Frame-Options: sameorigin
@@ -225,9 +225,9 @@ A valid request::
 Del
 ```
 
-HTTP DELETE to ``/api/0.0.1/del``. Required parameters:
+HTTP DELETE to ``/api/0.0.1/del/:slot``. Required parameters:
 
-* ``slot``
+* ``slot`` -- in URL
 * ``pw``
 
 Server returns:
@@ -248,7 +248,7 @@ Examples
 
 Authorization error::
 
-  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del?slot=1&pw=oops'
+  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del/1?pw=oops'
 
   HTTP/1.1 403 Forbidden 
   X-Frame-Options: sameorigin
@@ -265,7 +265,7 @@ Authorization error::
 
 A valid request::
 
-  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del?slot=1&pw=12345678'
+  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del/1?pw=12345678'
 
   HTTP/1.1 200 OK 
   X-Frame-Options: sameorigin

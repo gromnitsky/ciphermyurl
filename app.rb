@@ -23,7 +23,6 @@ use Rack::Recaptcha, public_key: settings.recaptcha_public_key, private_key: set
 helpers Rack::Recaptcha::Helpers
 
 configure do
-#  set :sessions, expire_after: 4 # seconds
   HDR_ERROR = "X-#{Meta::NAME}-Error"
 end
 
@@ -41,6 +40,11 @@ error 400..510 do
     (session[:halt] ? "Error: #{session[:halt]}\n" : "")
 end
 
+before do
+  # Staff for views
+  @meta = Meta
+  @my_session = session
+end
 
 # Return a generated slot number as 201 with text/plain or http error:
 #
@@ -83,7 +87,7 @@ end
 # [403]  password is invalid
 # [404]  slot not found
 # [500]  couldn't unpack
-get "/api/0.0.1/unpack" do
+get "/api/0.0.1/unpack/:slot" do
   r = nil
   begin
     r = Api.unpack Api.unpackRequestRead(params)
@@ -112,7 +116,7 @@ end
 # [400]  bad request
 # [403]  pw is invalid
 # [500]  couldn't delete, some nasty error
-delete '/api/0.0.1/del' do
+delete '/api/0.0.1/del/:slot' do
   begin
     Api.del Api.delRequestRead(params)
   rescue ApiBadRequestError
@@ -209,11 +213,11 @@ end
 # Optional params:
 #
 # [pw]  a password for unpacking the slot
-get %r{/([0-9]+)} do |slot|
+get %r{^/([0-9]+)} do |slot|
   data = nil
   if params['pw']
     # run rack call to unpack the slot
-    status, headers, body = local_get "/api/#{Api::VERSION}/unpack", "slot=#{slot}&pw=#{params['pw']}"
+    status, headers, body = local_get "/api/#{Meta::API_VERSION}/unpack/#{slot}", "pw=#{params['pw']}"
     data = body.first if status == 200
     flash[:error] = headers[HDR_ERROR] if headers[HDR_ERROR]
   end
@@ -221,7 +225,6 @@ get %r{/([0-9]+)} do |slot|
   redirect data if CipherMyUrl::Data.valid_uri?(data)
   
   haml :unpack, :locals => {
-    project: Meta::NAME,
     slot: slot,
     data: data
   }
@@ -229,13 +232,9 @@ end
 
 get '/' do
   haml :pack, :locals => {
-    project: Meta::NAME,
-    
     data_max: CipherMyUrl::Data::DATA_MAX,
     pw_min: CipherMyUrl::Data::PW_MIN,
     recaptcha_public_key: settings.recaptcha_public_key,
-    
-    my_session: session,
   }
 end
 
@@ -260,7 +259,7 @@ post '/b/pack' do
     redirect_with_session('/', params)
   end
   
-  status, headers, body = local_post("/api/#{Api::VERSION}/pack", {
+  status, headers, body = local_post("/api/#{Meta::API_VERSION}/pack", {
                                        data: params['data'],
                                        pw: params['pw'],
                                        kpublic: Api::BROWSER_USER_PUBLIC,
@@ -275,15 +274,12 @@ post '/b/pack' do
   session[:pack_protection] += 1
   
   haml :b_pack, :locals => {
-    project: Meta::NAME,
     slot: body.first,
     pw: params[:pw]
   }
 end
 
 get '/about' do
-  haml :about, :locals => {
-    project: Meta::NAME,
-    packsCount: MyDB.getCount
-  }
+  @getCount = MyDB.getCount
+  haml :about
 end

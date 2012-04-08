@@ -1,5 +1,5 @@
 - content_for :title do
-  %title #{project} :: About
+  %title #{@meta::NAME} :: About
 
 - content_for :menu do
   = menu('WTF?')
@@ -10,7 +10,9 @@
       %h1 About
 
       .well
-        Total packs: #{packsCount}
+        Total packs: #{@getCount}
+        %br/
+        API Version: #{@meta::API_VERSION}
 
       %p
         The original idea came from this clever guy:
@@ -28,18 +30,18 @@
         to resolve such link by himself and filter it again.
 
       %p
-        So here it comes #{project}--a 'cipher' that hides any text (not
+        So here it comes #{@meta::NAME}--a 'cipher' that hides any text (not
         just a URL) behind a number & a password. Bob doesn't sent to
         Alice a URL, Bob sent a number that corresponds to the
         URL. (It's very unlikely that any TA will filter numbers like
-        456334 from messages.) Alice goes to #{project} and enters
+        456334 from messages.) Alice goes to #{@meta::NAME} and enters
         the number + password pair. It's possible, of course, to give
         her a URL with the already filled number and the password or
         just with the number.
 
       %p
         (The password exchange mechanism between Bob & Alice is out of
-        scope of #{project}. For true secure communication nothing beats
+        scope of #{@meta::NAME}. For true secure communication nothing beats
         public-key cryptography (read: PGP, GnuPG).)
 
       %h2 Terminology
@@ -48,12 +50,12 @@
         %dt Slot
         %dd
           A number that represent a data behind it. You cannot choose it
-          by yourself--#{project} will automatically generate it for
+          by yourself--#{@meta::NAME} will automatically generate it for
           you.
 
         %dt To pack
         %dd
-          To add some data to the #{project}. After packing you'll get a
+          To add some data to the #{@meta::NAME}. After packing you'll get a
           slot.
 
         %dt To unpack
@@ -68,13 +70,13 @@
         
         Pre-alpha stage. Nothing is certain, so feel free
         = succeed '.' do
-          %a{href: "mailto:flower.henry@yahoo.com?Subject=#{project}"} to sent your suggestions
+          %a{href: "mailto:flower.henry@yahoo.com?Subject=#{@meta::NAME}"} to sent your suggestions
 
       %p
 
-        Despite its name, #{project} doesn't cipher anything--you
+        Despite its name, #{@meta::NAME} doesn't cipher anything--you
         password is hashed but the data goes as is--it's up to a client
-        to encrypt it. Web-based part of #{project} is a client, but due
+        to encrypt it. Web-based part of #{@meta::NAME} is a client, but due
         to the fact that
 
         = succeed ',' do

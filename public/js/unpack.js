@@ -17,10 +17,10 @@ Unpack.TEXTAREA = 'textarea#data'
 
 Unpack.prototype.apiGetDataAndFill = function() {
 	$(Unpack.FORM_SUBMIT).attr("disabled", true)
-	var url = '/api/'+ Unpack.API_VERSION +'/unpack'
+	var url = '/api/'+ Unpack.API_VERSION +'/unpack/' + this.getSlot()
 	
 	var o = this
-	var r = $.get(url, {slot: this.getSlot(), pw: this.pw.val()}, function(data) {
+	var r = $.get(url, {pw: this.pw.val()}, function(data) {
 		o.setTextarea(data)
 	})
 		.error(function() {

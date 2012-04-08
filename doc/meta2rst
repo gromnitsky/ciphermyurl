@@ -1,13 +1,8 @@
 #!/usr/bin/env ruby
 # -*-ruby-*-
 
-require_relative '../lib/ciphermyurl/api'
 require_relative '../lib/ciphermyurl/meta'
 require 'pp'
 
 o = CipherMyUrl::Meta.to_ostruct
-o.apiversion = CipherMyUrl::Api::VERSION
-
-o.each {|k, v|
-  puts ".. |#{k}| replace:: #{v}"
-}
+o.each {|k, v| puts ".. |#{k}| replace:: #{v}" }

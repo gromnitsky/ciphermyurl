@@ -1,5 +1,5 @@
 - content_for :title do
-  %title #{project} :: Pack
+  %title #{@meta::NAME} :: Pack
 
 - content_for :script do
   %script(type='text/javascript' src='/js/vendor/jquery-1.7.2.min.js')
@@ -28,10 +28,10 @@
     %br/
     = find_and_preserve do
       %textarea#data(name='data' rows='10' cols='80')
-        = my_session[:data]
+        = @my_session[:data]
     %br/
     Password is mandatory (#{pw_min} bytes min):
-    %input(name='pw' type='text' value="#{my_session[:pw]}")
+    %input(name='pw' type='text' value="#{@my_session[:pw]}")
 
   %p
     = drawCaptcha('white')

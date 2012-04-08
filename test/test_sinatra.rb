@@ -24,7 +24,7 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
   end
 
   def test_api_unpack
-    get "/api/#{Api::VERSION}/unpack?slot=1&pw=mystrongpassword"
+    get "/api/#{Meta::API_VERSION}/unpack/1?pw=mystrongpassword"
     assert last_response.ok?
     assert_equal 'some random text', last_response.body
   end
@@ -34,7 +34,7 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
       "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
       "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json
     
-    post "/api/#{Api::VERSION}/pack", j
+    post "/api/#{Meta::API_VERSION}/pack", j
     assert_equal 201, last_response.status
     assert_equal '2', last_response.body
   end
@@ -85,18 +85,18 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
   end
 
   def test_del
-    delete "/api/#{Api::VERSION}/del?slot=1&pw=bogus"
+    delete "/api/#{Meta::API_VERSION}/del/1?pw=bogus"
     assert_equal 403, last_response.status
     assert_equal "invalid password", last_response.header[HDR_ERROR]
 
     # delete method must behave like idempotent
     2.times {
-      delete "/api/#{Api::VERSION}/del?slot=1&pw=mystrongpassword"
+      delete "/api/#{Meta::API_VERSION}/del/1?pw=mystrongpassword"
  #     pp last_response
       assert last_response.ok?
     }
 
-    get "/api/#{Api::VERSION}/unpack?slot=1&pw=mystrongpassword"
+    get "/api/#{Meta::API_VERSION}/unpack/1?pw=mystrongpassword"
     assert_equal 404, last_response.status
     assert_equal "no such slot", last_response.header[HDR_ERROR]
   end

@@ -19,8 +19,6 @@ module CipherMyUrl
     include Auth
     extend self
 
-    VERSION = '0.0.1'
-
     # [pw]    password in plain text
     # [data]  value from MyDB[slot]
     def pwEqual?(pw, data)
