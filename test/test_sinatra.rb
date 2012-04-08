@@ -30,7 +30,11 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
   end
 
   def test_api_pack
-    post "/api/#{Api::VERSION}/pack", '{"data": 12345678912, "pw": 12345678, "keyshash": "%s"}' % [Api::BROWSER_USER_KEYSHASH]
+    j = { "data" => 12345678912, "pw" => 12345678,
+      "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
+      "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json
+    
+    post "/api/#{Api::VERSION}/pack", j
     assert_equal 201, last_response.status
     assert_equal '2', last_response.body
   end
@@ -81,13 +85,14 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
   end
 
   def test_del
-    delete "/api/#{Api::VERSION}/del?slot=1&keyshash=mystrongpassword"
+    delete "/api/#{Api::VERSION}/del?slot=1&pw=bogus"
     assert_equal 403, last_response.status
-    assert_equal "invalid keyshash", last_response.header[HDR_ERROR]
+    assert_equal "invalid password", last_response.header[HDR_ERROR]
 
     # delete method must behave like idempotent
     2.times {
-      delete "/api/#{Api::VERSION}/del?slot=1&keyshash=#{Api::BROWSER_USER_KEYSHASH}"
+      delete "/api/#{Api::VERSION}/del?slot=1&pw=mystrongpassword"
+ #     pp last_response
       assert last_response.ok?
     }
 

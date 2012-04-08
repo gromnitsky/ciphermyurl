@@ -75,9 +75,9 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
   def test_auth
     assert_equal 'john.doe@example.com', CipherMyUrl::Api.getBrowserUser[:email]
     
-    assert_equal CipherMyUrl::Api::BROWSER_USER_KEYSHASH, CipherMyUrl::Api.keyshash_findBy('john.doe@example.com')
-    assert_equal CipherMyUrl::Api::BROWSER_USER_KEYSHASH, CipherMyUrl::Api.keyshash_findBy(CipherMyUrl::Api::BROWSER_USER_PUBLIC)
-    assert_equal nil, CipherMyUrl::Api.keyshash_findBy('q@b.com')
+    assert_equal CipherMyUrl::Api::BROWSER_USER_PUBLIC, CipherMyUrl::Api.kpublic_findBy('john.doe@example.com')
+    assert_equal CipherMyUrl::Api::BROWSER_USER_PUBLIC, CipherMyUrl::Api.kpublic_findBy(CipherMyUrl::Api::BROWSER_USER_KEYSHASH)
+    assert_equal nil, CipherMyUrl::Api.kpublic_findBy('q@b.com')
   end
 
   def test_api_pack
@@ -92,25 +92,31 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     assert_raises(CipherMyUrl::ApiBadRequestError) {
       CipherMyUrl::Api.packRequestRead sio
     }
-    sio = StringIO.new '{"data": 1, "pw": 2, "keyshash": 3}'
+    sio = StringIO.new '{"data": 1, "pw": 2, "kpublic": 3, "kprivate": 4}'
     assert_raises(CipherMyUrl::ApiUnauthorizedError) {
       CipherMyUrl::Api.packRequestRead sio
     }
 
-    sio = StringIO.new '{"data": 1, "pw": 2, "keyshash": "%s"}' % [CipherMyUrl::Api::BROWSER_USER_KEYSHASH]
-#    pp CipherMyUrl::Api::BROWSER_USER_KEYSHASH
+#    pp CipherMyUrl::Api::BROWSER_USER_PRIVATE
+    sio = StringIO.new({ "data" => 1, "pw" => 2,
+                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
+                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
     e = assert_raises(RuntimeError) {
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }
     assert_match /password length/, e.message
 
-    sio = StringIO.new '{"data": 1, "pw": 12345678, "keyshash": "%s"}' % [CipherMyUrl::Api::BROWSER_USER_KEYSHASH]
+    sio = StringIO.new({ "data" => 1, "pw" => 12345678,
+                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
+                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
     e = assert_raises(RuntimeError) {
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }
     assert_match /data must be in range/, e.message
 
-    sio = StringIO.new '{"data": 12345678912, "pw": 12345678, "keyshash": "%s"}' % [CipherMyUrl::Api::BROWSER_USER_KEYSHASH]
+    sio = StringIO.new({ "data" => 12345678912, "pw" => 12345678,
+                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
+                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
     CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
   end
 
@@ -144,7 +150,7 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
       CipherMyUrl::Api.del nil
     }
 
-    CipherMyUrl::Api.del({slot: '1', keyshash: CipherMyUrl::Api::BROWSER_USER_KEYSHASH})
+    CipherMyUrl::Api.del({slot: '1', pw: 'wsx22222222222222'})
     assert_raises(CipherMyUrl::ApiInvalidSlotError) {
       CipherMyUrl::Api.unpack({slot: '1', pw: 'wsx22222222222222'})
     }

@@ -75,10 +75,9 @@ file DB_APIKEYS => ['config/crypto.rb'] do |t|
   require_relative 'lib/ciphermyurl/auth'
 
   h = {
-    CipherMyUrl::Auth::BROWSER_USER_KEYSHASH.encode('ascii') => {
+    CipherMyUrl::Auth::BROWSER_USER_PUBLIC => {
       email: 'john.doe@example.com',
-      kpublic: CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
-      kprivate: CipherMyUrl::Auth::BROWSER_USER_PRIVATE,
+      keyshash: CipherMyUrl::Auth::BROWSER_USER_KEYSHASH.encode('ascii'),
     }
   }.to_yaml
   puts 'Writing ' + t.name

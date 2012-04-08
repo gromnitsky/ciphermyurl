@@ -37,17 +37,17 @@ module CipherMyUrl
         raise ApiBadRequestError, $!
       end
 
-      user = authenticated?(req[:keyshash])
-      raise ApiUnauthorizedError, "keyshash is missing in our DB" unless user
+      user = authenticated?(req[:kpublic], req[:kprivate])
+      raise ApiUnauthorizedError, "invalid public or private key" unless user
 
       data = req
       data[:email] = user[:email]
       data
     end
     
-    # req is a hash { data: '...', pw: '...', keyshash: '...' }
+    # req is a hash { data: '...', pw: '...', kpublic: '...', kprivate: '...' }
     def valid_packRequest?(req)
-      return if req[:data] && req[:pw] && req[:keyshash]
+      return if req[:data] && req[:pw] && req[:kpublic] && req[:kprivate]
       raise ApiBadRequestError, 'validation of JSON failed'
     end
     
@@ -91,31 +91,23 @@ module CipherMyUrl
     
     # ---
     
-    # req is a hash { 'slot' => '...', 'keyshash' => '...' }
+    # req is a hash { 'slot' => '...', 'pw' => '...' }
     def delRequestRead(req)
       valid_delRequest?(req)
     end
 
     def valid_delRequest?(req)
-      if req && req['slot'] && req['keyshash']
-        r = {}
-        r[:slot] = req['slot'].to_s
-        r[:keyshash] = req['keyshash'].to_s
-        r
-      else
-        raise ApiBadRequestError, 'slot and keyshash are both required'
-      end
+      valid_unpackRequest?(req)
     end
     
-    # data is a hash { slot: '...', keyshash: '...' }
+    # data is a hash { slot: '...', pw: '...' }
     def del(req)
       Data.valid_slot?(req ? req[:slot] : nil) rescue raise ApiBadRequestError, $!
       
       data = CipherMyUrl::MyDB[req[:slot]]
       return false unless data
 
-      raise ApiException, 'Auth DB is corrupted' unless keyshash = keyshash_findBy(data[:user])
-      raise ApiUnauthorizedError, "invalid keyshash" unless keyshash == req[:keyshash]
+      raise ApiUnauthorizedError, "invalid password" unless pwEqual?(req[:pw], data)
 
       CipherMyUrl::MyDB.del req[:slot]
     end

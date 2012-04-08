@@ -12,18 +12,24 @@ module CipherMyUrl
   module Auth
     ROOT = Pathname.new(File.dirname(__FILE__)).parent.parent
     APIKEYS = ROOT + 'db/apikeys.yaml'
-    
+
+    # Browser user keys
     require ROOT + 'config/crypto'
     include Crypto
 
-    def self.keys_hash(kpubic, kprivate)
+    def self.keyshash(kpubic, kprivate)
       Digest::SHA256.hexdigest(kpubic + kprivate)
     end
-    
-    BROWSER_USER_KEYSHASH = Auth.keys_hash BROWSER_USER_PUBLIC, BROWSER_USER_PRIVATE
 
-    def authenticated?(keys_hash)
-      @table[keys_hash]
+    # Handy for tests
+    BROWSER_USER_KEYSHASH = Auth.keyshash BROWSER_USER_PUBLIC, BROWSER_USER_PRIVATE
+
+    def authenticated?(kpublic, kprivate)
+      if @table[kpublic] && Auth.keyshash(kpublic, kprivate) == @table[kpublic][:keyshash]
+        return @table[kpublic]
+      end
+      
+      nil
     end
 
     def apikeys_load(file = nil)
@@ -38,16 +44,16 @@ module CipherMyUrl
     end
 
     def getBrowserUser
-      authenticated? BROWSER_USER_KEYSHASH
+      authenticated?(BROWSER_USER_PUBLIC, BROWSER_USER_PRIVATE)
     end
 
-    def keyshash_findBy(query)
+    def kpublic_findBy(query)
       @table.each {|key, val|
         if query.index('@')
           # find by email
           return key if val[:email] == query
         else
-          return key if val[:kpublic] == query
+          return key if val[:keyshash] == query
         end
       }
       nil

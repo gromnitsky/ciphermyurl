@@ -50,7 +50,7 @@ end
 #
 # Request body must contain JSON:
 #
-# { data: '...', pw: '...', keyshash: '...' }
+# { data: '...', pw: '...', kpublic: '...', kprivate: '...' }
 #
 # FIXME: check request.content_length
 post "/api/0.0.1/pack" do
@@ -105,12 +105,12 @@ end
 # Required params:
 #
 # [slot]
-# [keyshash]
+# [pw]
 #
 # Return empty http 200 with empty body or http error:
 #
 # [400]  bad request
-# [403]  keyshash is invalid
+# [403]  pw is invalid
 # [500]  couldn't delete, some nasty error
 delete '/api/0.0.1/del' do
   begin
@@ -263,7 +263,8 @@ post '/b/pack' do
   status, headers, body = local_post("/api/#{Api::VERSION}/pack", {
                                        data: params['data'],
                                        pw: params['pw'],
-                                       keyshash: Api::BROWSER_USER_KEYSHASH
+                                       kpublic: Api::BROWSER_USER_PUBLIC,
+                                       kprivate: Api::BROWSER_USER_PRIVATE
                                      }.to_json)
   unless status == 201
     session[:pack_protection] = 0
