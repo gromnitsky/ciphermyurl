@@ -1,0 +1,12 @@
+# Settings for crypto hashes
+
+module CipherMyUrl
+  module Crypto
+    # Browser public key (uuid)
+    BROWSER_USER_PUBLIC = 'SET THIS'
+    
+    # Browser private key (any long string)
+    # Try, for example 'openssl rand -hex 64'
+    BROWSER_USER_PRIVATE = 'SET THIS'
+  end
+end

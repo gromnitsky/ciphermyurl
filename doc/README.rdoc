@@ -1,0 +1,36 @@
+= CipherMyUrl
+
+The original idea belongs to https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
+
+== Installation
+
+1. Create initial configuration:
+
+     % git clone ...
+     % cd ciphermyurl
+
+   Install all dependencies:
+   
+     # bundle install
+   or
+     % bundle install --path vendor
+
+   Generate some defaults:
+   
+     % rake init
+
+   Edit <tt>config/sinatra.rb</tt>.
+
+   The default configuration uses PStore as a DB so no external database
+   is necessary.
+
+2. Run application:
+
+     % rackup
+
+3. Point a browser to http://127.0.0.1:9292
+
+4. (Unnecessary)
+
+   To generate API docs in xhtml, install recent python's (what a shame)
+   docutils.

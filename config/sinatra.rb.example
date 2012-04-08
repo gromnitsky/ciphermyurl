@@ -1,5 +1,9 @@
+# This file is loaded by the application at start-up.
+
 configure do
   set :debug, false
+
+  # http://www.google.com/recaptcha/whyrecaptcha
   set :recaptcha_public_key, 'SET THIS'
   set :recaptcha_private_key, 'SET THIS'
 end
@@ -7,7 +11,7 @@ end
 configure :production, :development do
   # 2 db
   MyDB.setAdapter(:pstore, file: settings.root + '/db/data.marshall')
-  Api.apikeys_load settings.root + '/db/apikeys.yaml'
+  Api.apikeys_load
 end
 
 configure :development do
@@ -22,4 +26,9 @@ configure :production do
   set :haml, ugly: true
 end
 
-# for :test config, see test/helpers.rb
+### For :test config, see test/helpers.rb ###
+
+
+# Do NOT edit this 2 lines
+fail 'no recaptcha config' if settings.recaptcha_public_key == 'SET THIS'
+fail 'no recaptcha config' if settings.recaptcha_private_key == 'SET THIS'

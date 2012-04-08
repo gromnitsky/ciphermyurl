@@ -2,13 +2,13 @@ require 'pathname'
 require 'digest/sha2'
 require 'yaml'
 
-# How to add api keys:
-#
-# 1. Edit yaml file by hand
-# 2. Connect to a running sinatra instance with racksh
-# 3. Run 'apikeys_load'
-
 module CipherMyUrl
+  
+  # How to add api keys:
+  #
+  # 1. Edit yaml file by hand
+  # 2. Connect to a running sinatra instance with racksh
+  # 3. Run 'apikeys_load'
   module Auth
     ROOT = Pathname.new(File.dirname(__FILE__)).parent.parent
     APIKEYS = ROOT + 'db/apikeys.yaml'
@@ -20,7 +20,7 @@ module CipherMyUrl
       Digest::SHA256.hexdigest(kpubic + kprivate)
     end
     
-    BROWSER_USER_KEYSHASH = Auth.keys_hash BROWSER_USER_PUBLIC, BROWSER_USER_PPRIVATE
+    BROWSER_USER_KEYSHASH = Auth.keys_hash BROWSER_USER_PUBLIC, BROWSER_USER_PRIVATE
 
     def authenticated?(keys_hash)
       @table[keys_hash]
@@ -47,7 +47,7 @@ module CipherMyUrl
           # find by email
           return key if val[:email] == query
         else
-          return key if val[:uuid] == query
+          return key if val[:kpublic] == query
         end
       }
       nil
