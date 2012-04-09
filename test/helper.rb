@@ -9,7 +9,7 @@ require 'minitest/autorun'
 begin
   set :environment, :test
   configure :test do
-    set :debug, false
+    
   end
 rescue
   # ignore for non-rack tests

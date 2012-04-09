@@ -1,5 +1,6 @@
 require 'pathname'
 require 'ostruct'
+require 'logger'
 require 'sinatra'
 require 'rack/recaptcha'
 require 'net/http'
@@ -29,9 +30,25 @@ end
 helpers do
   def myhalt(code, msg)
     headers HDR_ERROR => msg.to_s if msg
-  
     session[:halt] = msg.to_s
+
+    # FIXME: a kludge for sinatra 1.3.2, remove this for 1.4+
+    @responseStatus = code
+    
     halt code
+  end
+
+  def logBefore
+    # mark & log each request
+    @requestId = SecureRandom.hex 4
+    @responseStatus = nil # FIXME: remove this for 1.4+
+    logger.info "#{@requestId} before #{request.ip} #{request.path} #{request.referrer} #{request.user_agent}"
+  end
+
+  def logAfter
+    # response.status doesn't work in sinatra 1.3.2 for halts
+    # FIXME: remove @responseStatus this for 1.4+
+    logger.info "#{@requestId} after #{@responseStatus ? @responseStatus : response.status} #{flash[:error]}"
   end
 end
 
@@ -44,6 +61,12 @@ before do
   # Staff for views
   @meta = Meta
   @my_session = session
+
+  logBefore
+end
+
+after do
+  logAfter
 end
 
 # Return a generated slot number as 201 with text/plain or http error:
@@ -191,21 +214,19 @@ helpers do
     fail 'packing is unprotected (disabled cookies?)' unless session[:pack_protection]
 
     current = Digest::SHA256.hexdigest data
-    if settings.debug
-      puts "session=#{session[:pack_protection]}"
-      puts "current=#{current}, last=#{session[:pack_last]}"
-    end
+    logger.debug "pack_protection=#{session[:pack_protection]}"
+    logger.debug "p-current=#{current}, p-last=#{session[:pack_last]}"
     
     unless session[:pack_protection] == 0
       fail 'you have submitted that data already' if session[:pack_last] == current
     end
-      
+    
     session[:pack_last] = current
     return true
   end
 
   def drawCaptcha(t)
-    return '[CAPTCHA]' if settings.debug
+    return '[CAPTCHA]' if logger.level == Logger::DEBUG
     recaptcha_tag(:ajax, display: {theme: t})
   end
 end

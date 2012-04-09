@@ -1,7 +1,7 @@
 # This file is loaded by the application at start-up.
 
 configure do
-  set :debug, false
+  set :logging, Logger::INFO
 
   # http://www.google.com/recaptcha/whyrecaptcha
   set :recaptcha_public_key, 'SET THIS'
@@ -15,6 +15,8 @@ configure :production, :development do
 end
 
 configure :development do
+  set :logging, Logger::DEBUG
+  
   # Ignore captcha
   Rack::Recaptcha.test_mode! :return => true
 
