@@ -17,6 +17,8 @@ module CipherMyUrl
         end
         
         def init(opt)
+          @opt = opt
+          
           # thread-safe
           @store = PStore.new(opt[:file], true)
           @store.ultra_safe = true
@@ -24,6 +26,12 @@ module CipherMyUrl
           unless getValue('count')
             @store.transaction { @store['count'] = 0 }
           end
+        end
+
+        def rmdb
+          File.unlink @opt[:file]
+        rescue
+          fail "cannot delete database: #{$!}"
         end
 
         # Return a generated slot number.

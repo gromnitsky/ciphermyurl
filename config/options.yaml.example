@@ -1,10 +1,14 @@
 ---
+:dbadapter: :pstore
 
-# An auth for CouchDB. Ignore this for PStore.
 :db:
-  :adapter: :pstore
-  :login: user
-  :pw: password
+  :couchdb:
+    :params:
+      :login: user
+      :pw: password
+  :pstore:
+    :params:
+      :file: some-file
 
 # A pair of keys for a web client.
 # Set them with something meaningfully long.

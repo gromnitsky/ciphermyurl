@@ -70,22 +70,22 @@ end
 
 
 namespace 'db' do
-  task :clean_fixtures do
-    rm_rf DB_PSTORE if opt[:db][:adapter] == :pstore
-    # FIXME: delete couchdb db
+  task :db_connect do
+    if opt[:dbadapter] == :pstore
+      opt[:db][:pstore][:params][:file] = DB_PSTORE
+    end
+    CipherMyUrl::MyDB.setAdapter opt[:dbadapter], opt[:db][opt[:dbadapter]][:params]
+  end
+  
+  task clean_fixtures: :db_connect do
+    CipherMyUrl::MyDB.rmdb
   end
 
   desc 'Clean & fill the DB with minimum requred data'
   task fixtures: [OPTIONS, :clean_fixtures] do
-    if opt[:db][:adapter] == :pstore
-      CipherMyUrl::MyDB.setAdapter :pstore, file: DB_PSTORE
-    else
-      # FIXME: couchdb
-      CipherMyUrl::MyDB.setAdapter(opt[:db][:adapter],
-                                   login: opt[:db][:login],
-                                   pw: opt[:db][:pw])
-    end
-    
+    # reconnect to db
+    Rake::Task['db:db_connect'].execute
+    # add some data
     CipherMyUrl::MyDB.pack DB_WELCOME_MSG, 'john.doe@example.com', '12345678'
 #    pp CipherMyUrl::MyDB['1']
   end

@@ -55,6 +55,7 @@ module CipherMyUrl
     end
 
     def setAdapter(adapter_name, opt)
+      @opt = opt
       case adapter_name
       when Symbol, String
         require_relative "db/#{adapter_name}"
@@ -63,6 +64,11 @@ module CipherMyUrl
       else
         fail "invalid adapter #{adapter_name}"
       end
+    end
+
+    # Delete the whole database
+    def rmdb
+      adapter.rmdb
     end
 
     def [](slot)
