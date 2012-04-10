@@ -7,17 +7,17 @@ require_relative '../lib/ciphermyurl/api'
 require_relative '../lib/ciphermyurl/options'
 
 class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
+  
   def setup
     # this runs every time before test_*
-
+    
     cd_to_tests
+    @opt = CipherMyUrl::Options.load
     CipherMyUrl::Api.apikeys_load 'example/01/apikeys.yaml'
     
     data = 'example/01/data'
     rm_rf data
     CipherMyUrl::MyDB.setAdapter :pstore, file: data
-
-    @opt = CipherMyUrl::Options.load
   end
 
   def test_pack

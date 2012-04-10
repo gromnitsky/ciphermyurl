@@ -40,31 +40,35 @@ module CipherMyUrl
 
         # Return a generated slot number.
         def pack(data, user, pw)
-          return nil unless slot = @db.get('count')
-          slot[:last] += 1
-
           tries = 5
+          n = nil
           begin
-            # make new
-            @db.save_doc('_id' => slot[:last].to_s,
-                         :data => data,
-                         :user => user,
-                         :pwhash => pw)
+            unless slot = @db.get('count')
+              tries = 0
+              fail "no counter in db"
+            end
+            n = slot[:last] + 1
+
             # update count
             @db.save_doc('_id' => 'count',
                          '_rev' => slot['_rev'],
-                         :last => slot[:last])
+                         :last => n)
+            # make new
+            @db.save_doc('_id' => n.to_s,
+                         :data => data,
+                         :user => user,
+                         :pwhash => pw)
           rescue
             # someone else has created slot with this number
-#            $stderr.puts "***** TRIES: #{tries}****"
-            slot[:last] += 1
+            n += 1
             tries -= 1
+#            $stderr.puts "***** TRIES=#{tries}, n=#{n}****"
             retry if tries > 0
             
-            return nil
+            raise "failed to create a new slot: #{$!}"
           end
           
-          slot[:last].to_s
+          n.to_s
         end
 
         def del(slot)
