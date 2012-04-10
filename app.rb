@@ -86,11 +86,8 @@ post "/api/0.0.1/pack" do
   request.body.rewind
   slot = nil
   begin
-    3.times {
-      slot = Api.pack Api.packRequestRead(request.body)
-      break if slot
-    }
-    fail RuntimeError, 'failed to create a new slot' unless slot
+    slot = Api.pack Api.packRequestRead(request.body)
+    fail RuntimeError, "failed to create a new slot" unless slot
   rescue ApiUnauthorizedError
     myhalt 401, $!
   rescue ApiBadRequestError
@@ -171,7 +168,7 @@ helpers do
   end
   
   def local_post(url, data)
-#    pp request.env
+#    pp request
     request.env['rack.input'], request.env['data.input'] = StringIO.new(data), request.env['rack.input']
     call env.merge('PATH_INFO' => url)
   end
