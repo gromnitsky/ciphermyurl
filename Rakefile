@@ -18,8 +18,6 @@ DB_WELCOME_MSG = File.read 'db/welcome.txt'
 CSS = 'public/style.css'
 OPTIONS = 'config/options.yaml'
 
-opt = CipherMyUrl::Options.load
-
 Rake::TestTask.new do |i|
   i.test_files = FileList['test/test_*.rb']
 end
@@ -65,12 +63,15 @@ file DB_APIKEYS => OPTIONS do |t|
   puts 'Writing ' + t.name
   
   require_relative 'lib/ciphermyurl/auth'
+  opt = CipherMyUrl::Options.load
   CipherMyUrl::Auth.apikeys_add opt, t.name
 end
 
 
 namespace 'db' do
   task :db_connect do
+    opt = CipherMyUrl::Options.load
+    
     if opt[:dbadapter] == :pstore
       opt[:db][:pstore][:params][:file] = DB_PSTORE
     end

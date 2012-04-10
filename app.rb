@@ -86,7 +86,10 @@ post "/api/0.0.1/pack" do
   request.body.rewind
   slot = nil
   begin
-    slot = Api.pack Api.packRequestRead(request.body)
+    3.times {
+      slot = Api.pack Api.packRequestRead(request.body)
+      break if slot
+    }
     fail RuntimeError, 'failed to create a new slot' unless slot
   rescue ApiUnauthorizedError
     myhalt 401, $!

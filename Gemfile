@@ -7,6 +7,7 @@ gem "rack-recaptcha", "~> 0.6.4"
 gem "rdoc", "~> 3.12"
 gem "rake", "~> 0.9.2.2"
 gem "haml", "~> 3.1.4"
+gem "couchrest", "~> 1.1.2"
 
 group :development do
   gem "minitest", "~> 2.12.0"

@@ -1,4 +1,4 @@
----
+--- 
 :dbadapter: :pstore
 
 :db:
@@ -6,6 +6,9 @@
     :params:
       :login: user
       :pw: password
+      :tls: false
+      :host: 127.0.0.1
+      :port: 5984
   :pstore:
     :params:
       :file: some-file
@@ -16,3 +19,4 @@
   :kpublic: key1
   :kprivate: key2
   :email: john.doe@example.com
+
