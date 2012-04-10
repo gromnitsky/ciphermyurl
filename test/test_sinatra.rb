@@ -31,8 +31,8 @@ class TestCiphermyurl_4121749810 < MiniTest::Unit::TestCase
 
   def test_api_pack
     j = { "data" => 12345678912, "pw" => 12345678,
-      "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
-      "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json
+      "kpublic" => $opt[:webclient][:kpublic],
+      "kprivate" => $opt[:webclient][:kprivate] }.to_json
     
     post "/api/#{Meta::API_VERSION}/pack", j
     assert_equal 201, last_response.status

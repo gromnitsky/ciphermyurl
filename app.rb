@@ -13,8 +13,10 @@ require_relative 'lib/ciphermyurl/meta'
 require_relative 'lib/ciphermyurl/db'
 require_relative 'lib/ciphermyurl/api'
 require_relative 'lib/ciphermyurl/auth'
+require_relative 'lib/ciphermyurl/options'
 include CipherMyUrl
 
+$opt = Options.load
 require_relative 'config/sinatra'
 
 enable :sessions
@@ -283,8 +285,8 @@ post '/b/pack' do
   status, headers, body = local_post("/api/#{Meta::API_VERSION}/pack", {
                                        data: params['data'],
                                        pw: params['pw'],
-                                       kpublic: Api::BROWSER_USER_PUBLIC,
-                                       kprivate: Api::BROWSER_USER_PRIVATE
+                                       kpublic: $opt[:webclient][:kpublic],
+                                       kprivate: $opt[:webclient][:kprivate]
                                      }.to_json)
   unless status == 201
     session[:pack_protection] = 0

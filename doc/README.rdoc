@@ -50,7 +50,7 @@ https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
 
 == Post Installation Isssues
 
-  % git add config/sinatra.rb config/crypto.rb db/apikeys.yaml Gemfile.lock
+  % git add config/sinatra.rb config/options.yaml db/apikeys.yaml Gemfile.lock
   % git commit -a -m 'saving the config'
 
 <tt>db/data.marshall</tt> is your PStore db.

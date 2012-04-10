@@ -1,0 +1,14 @@
+---
+
+# An auth for CouchDB. Ignore this for PStore.
+:db:
+  :adapter: :pstore
+  :login: user
+  :pw: password
+
+# A pair of keys for a web client.
+# Set them with something meaningfully long.
+:webclient:
+  :kpublic: key1
+  :kprivate: key2
+  :email: john.doe@example.com

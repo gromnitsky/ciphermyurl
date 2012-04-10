@@ -4,6 +4,7 @@ require_relative 'helper'
 require_relative '../lib/ciphermyurl/db'
 require_relative '../lib/ciphermyurl/auth'
 require_relative '../lib/ciphermyurl/api'
+require_relative '../lib/ciphermyurl/options'
 
 class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
   def setup
@@ -15,6 +16,8 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     data = 'example/01/data'
     rm_rf data
     CipherMyUrl::MyDB.setAdapter :pstore, file: data
+
+    @opt = CipherMyUrl::Options.load
   end
 
   def test_pack
@@ -73,10 +76,10 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
   end
 
   def test_auth
-    assert_equal 'john.doe@example.com', CipherMyUrl::Api.getBrowserUser[:email]
+    assert_equal 'john.doe@example.com', CipherMyUrl::Api.authenticated?(@opt[:webclient][:kpublic], @opt[:webclient][:kprivate])[:email]
     
-    assert_equal CipherMyUrl::Api::BROWSER_USER_PUBLIC, CipherMyUrl::Api.kpublic_findBy('john.doe@example.com')
-    assert_equal CipherMyUrl::Api::BROWSER_USER_PUBLIC, CipherMyUrl::Api.kpublic_findBy(CipherMyUrl::Api::BROWSER_USER_KEYSHASH)
+    assert_equal @opt[:webclient][:kpublic], CipherMyUrl::Api.kpublic_findBy('john.doe@example.com')
+    assert_equal @opt[:webclient][:kpublic], CipherMyUrl::Api.kpublic_findBy(CipherMyUrl::Auth.keyshash(@opt[:webclient][:kpublic], @opt[:webclient][:kprivate]))
     assert_equal nil, CipherMyUrl::Api.kpublic_findBy('q@b.com')
   end
 
@@ -97,26 +100,25 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
       CipherMyUrl::Api.packRequestRead sio
     }
 
-#    pp CipherMyUrl::Api::BROWSER_USER_PRIVATE
     sio = StringIO.new({ "data" => 1, "pw" => 2,
-                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
-                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
+                         "kpublic" => @opt[:webclient][:kpublic],
+                         "kprivate" => @opt[:webclient][:kprivate] }.to_json)
     e = assert_raises(RuntimeError) {
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }
     assert_match /password length/, e.message
 
     sio = StringIO.new({ "data" => 1, "pw" => 12345678,
-                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
-                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
+                         "kpublic" => @opt[:webclient][:kpublic],
+                         "kprivate" => @opt[:webclient][:kprivate] }.to_json)
     e = assert_raises(RuntimeError) {
       CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
     }
     assert_match /data must be in range/, e.message
 
     sio = StringIO.new({ "data" => 12345678912, "pw" => 12345678,
-                         "kpublic" => CipherMyUrl::Auth::BROWSER_USER_PUBLIC,
-                         "kprivate" => CipherMyUrl::Auth::BROWSER_USER_PRIVATE }.to_json)
+                         "kpublic" => @opt[:webclient][:kpublic],
+                         "kprivate" => @opt[:webclient][:kprivate] }.to_json)
     CipherMyUrl::Api.pack CipherMyUrl::Api.packRequestRead(sio)
   end
 

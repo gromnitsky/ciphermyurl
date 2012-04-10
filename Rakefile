@@ -9,12 +9,16 @@ require 'securerandom'
 require 'yaml'
 
 require_relative 'doc/rakefile'
+require_relative 'lib/ciphermyurl/options'
 require_relative 'lib/ciphermyurl/db'
 
 DB_APIKEYS = 'db/apikeys.yaml'
 DB_PSTORE = 'db/data.marshall'
 DB_WELCOME_MSG = File.read 'db/welcome.txt'
 CSS = 'public/style.css'
+OPTIONS = 'config/options.yaml'
+
+opt = CipherMyUrl::Options.load
 
 Rake::TestTask.new do |i|
   i.test_files = FileList['test/test_*.rb']
@@ -38,20 +42,6 @@ file CSS => 'public/bootstrap' do |t|
 end
 
 
-namespace 'db' do
-  task :clean_fixtures do
-    rm_rf DB_PSTORE
-  end
-
-  desc 'Clean & fill the DB with minimum requred data'
-  task fixtures: :clean_fixtures do
-    CipherMyUrl::MyDB.setAdapter :pstore, file: DB_PSTORE
-    CipherMyUrl::MyDB.pack DB_WELCOME_MSG, 'john.doe@example.com', '12345678'
-#  pp CipherMyUrl::MyDB['1']
-  end
-end
-
-
 task :clean_config_sinatra do
   rm_rf 'config/sinatra.rb'
 end
@@ -61,36 +51,50 @@ file 'config/sinatra.rb' => 'config/sinatra.rb.example' do |t|
   cp(t.prerequisites.first.to_s, t.name)
 end
 
-desc 'Generate application crypto hashes (BE CAREFUL)'
-file 'config/crypto.rb' => 'config/crypto.rb.example' do |t|
-  s = File.read t.prerequisites.first
-  s.gsub! /(BROWSER_USER_PUBLIC) = 'SET THIS'/, "\\1 = '#{SecureRandom.uuid}'"
-  s.gsub! /(BROWSER_USER_PRIVATE) = 'SET THIS'/, "\\1 = '#{SecureRandom.hex(64)}'"
-  puts 'Writing ' + t.name
-  File.open(t.name, 'w+') { |fp| fp.write s }
+task :clean_options do
+  rm_rf OPTIONS
 end
 
-desc 'Generate api keys db (BE CAREFULL)'
-file DB_APIKEYS => ['config/crypto.rb'] do |t|
+desc 'Generate options (BE CAREFUL)'
+file OPTIONS => "#{OPTIONS}.example" do |t|
+  cp(t.prerequisites.first.to_s, t.name)
+end
+
+desc 'Add api keys to db'
+file DB_APIKEYS => OPTIONS do |t|
+  puts 'Writing ' + t.name
+  
   require_relative 'lib/ciphermyurl/auth'
-
-  h = {
-    CipherMyUrl::Auth::BROWSER_USER_PUBLIC => {
-      email: 'john.doe@example.com',
-      keyshash: CipherMyUrl::Auth::BROWSER_USER_KEYSHASH.encode('ascii'),
-    }
-  }.to_yaml
-  puts 'Writing ' + t.name
-  File.open(t.name, 'w+') { |fp| fp.write h }
+  CipherMyUrl::Auth.apikeys_add opt, t.name
 end
 
-task :clean_crypto do
-  rm_rf 'config/crypto.rb'
+
+namespace 'db' do
+  task :clean_fixtures do
+    rm_rf DB_PSTORE if opt[:db][:adapter] == :pstore
+    # FIXME: delete couchdb db
+  end
+
+  desc 'Clean & fill the DB with minimum requred data'
+  task fixtures: [OPTIONS, :clean_fixtures] do
+    if opt[:db][:adapter] == :pstore
+      CipherMyUrl::MyDB.setAdapter :pstore, file: DB_PSTORE
+    else
+      # FIXME: couchdb
+      CipherMyUrl::MyDB.setAdapter(opt[:db][:adapter],
+                                   login: opt[:db][:login],
+                                   pw: opt[:db][:pw])
+    end
+    
+    CipherMyUrl::MyDB.pack DB_WELCOME_MSG, 'john.doe@example.com', '12345678'
+#    pp CipherMyUrl::MyDB['1']
+  end
 end
 
-task default: ['public/style.css', 'doc:all']
+
+task default: [CSS, 'doc:all']
 task clean: [:clean_css, 'doc:clean']
-task clobber: [:clean_crypto, :clean_config_sinatra]
+task clobber: [:clean_options, :clean_config_sinatra]
 
 desc "Some initial configuration"
-task init: [DB_APIKEYS, 'config/sinatra.rb', 'db:fixtures', 'public/style.css']
+task init: [DB_APIKEYS, 'config/sinatra.rb', 'db:fixtures', CSS]
