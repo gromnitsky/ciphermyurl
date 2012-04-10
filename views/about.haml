@@ -10,9 +10,11 @@
       %h1 About
 
       .well
-        Total packs: #{@getCount}
+        Total packs: #{getCount}
         %br/
         API Version: #{@meta::API_VERSION}
+        %br/
+        DB Adapter: #{dbAdapter}
 
       %p
         The original idea came from this clever guy:
@@ -85,4 +87,4 @@
         we need to do that under TLS.
 
       %p
-        Current database (PStore) is a joke.
+        Database adaptor for CouchDB is slow; PStore is a joke.

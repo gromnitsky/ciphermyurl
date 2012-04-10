@@ -12,7 +12,8 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
                       pw: 'qwerty',
                       tls: false,
                       host: '127.0.0.1',
-                      port: 5984
+                      port: 5984,
+                      dbname: 'ciphermyurl-test'
                     })
   end
   

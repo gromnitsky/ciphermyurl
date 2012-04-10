@@ -9,6 +9,7 @@
       :tls: false
       :host: 127.0.0.1
       :port: 5984
+      :dbname: ciphermyurl
   :pstore:
     :params:
       :file: some-file

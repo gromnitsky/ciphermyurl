@@ -1,7 +1,5 @@
 require 'couchrest'
 
-require_relative '../meta'
-
 module CipherMyUrl
   module MyDB
     module Adapters
@@ -9,7 +7,6 @@ module CipherMyUrl
       # This module-adapter loads at run-time by MyDB module. See db.rb.
       module Couchdb
         extend self
-        DBNAME = Meta.to_ostruct.name.downcase
 
         def getValue(id)
           r = @db.get(id)
@@ -28,7 +25,7 @@ module CipherMyUrl
         def init(opt)
           @opt = opt
 
-          u = "http#{opt[:tls] ? 's' : ''}://#{opt[:login]}:#{opt[:pw]}@#{opt[:host]}:#{opt[:port]}/#{DBNAME}"
+          u = "http#{opt[:tls] ? 's' : ''}://#{opt[:login]}:#{opt[:pw]}@#{opt[:host]}:#{opt[:port]}/#{opt[:dbname]}"
           @db = CouchRest.database! u
 
           unless getValue('count')

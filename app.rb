@@ -306,6 +306,8 @@ post '/b/pack' do
 end
 
 get '/about' do
-  @getCount = MyDB.getCount
-  haml :about
+  haml :about, :locals => {
+    getCount: MyDB.getCount,
+    dbAdapter: $opt[:dbadapter]
+  }
 end
