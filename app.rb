@@ -97,6 +97,7 @@ post "/api/0.0.1/pack" do
   end
 
   content_type 'text/plain'
+  etag slot
   status 201
   slot
 end
@@ -127,6 +128,7 @@ get "/api/0.0.1/unpack/:slot" do
     myhalt 500, $!
   end
 
+  etag Digest::SHA256.hexdigest(r)
   content_type 'text/plain'
   r
 end
@@ -153,6 +155,7 @@ delete '/api/0.0.1/del/:slot' do
   end
 
   content_type 'text/plain'
+  cache_control :no_cache
   ""
 end
 
@@ -247,6 +250,7 @@ get %r{^/([0-9]+)} do |slot|
 
   redirect data if CipherMyUrl::Data.valid_uri?(data)
   
+  cache_control :no_cache
   haml :unpack, :locals => {
     slot: slot,
     data: data
@@ -254,6 +258,7 @@ get %r{^/([0-9]+)} do |slot|
 end
 
 get '/' do
+  cache_control :no_cache
   haml :pack, :locals => {
     data_max: CipherMyUrl::Data::DATA_MAX,
     pw_min: CipherMyUrl::Data::PW_MIN,
@@ -296,6 +301,7 @@ post '/b/pack' do
 
   session[:pack_protection] += 1
   
+  cache_control :no_cache
   haml :b_pack, :locals => {
     slot: body.first,
     pw: params[:pw]
