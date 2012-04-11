@@ -4,14 +4,21 @@ configure do
   set :logging, Logger::INFO
 
   # http://www.google.com/recaptcha/whyrecaptcha
-  set :recaptcha_public_key, 'SET THIS'
-  set :recaptcha_private_key, 'SET THIS'
+  set :recaptcha_public_key, $opt[:recaptcha][:kpublic]
+  set :recaptcha_private_key, $opt[:recaptcha][:kprivate]
 end
 
 configure :production, :development do
-  # 2 db
-  MyDB.setAdapter(:pstore, file: settings.root + '/db/data.marshall')
-  Api.apikeys_load
+  # databases
+  begin
+    if $opt[:dbadapter] == :pstore
+      $opt[:db][:pstore][:params][:file] = settings.root + '/db/data.marshall'
+    end
+    MyDB.setAdapter $opt[:dbadapter], $opt[:db][$opt[:dbadapter]][:params]
+    Api.apikeys_load
+  rescue
+    fail "DB connection problem: #{$!}"
+  end
 end
 
 configure :development do
@@ -29,8 +36,3 @@ configure :production do
 end
 
 ### For :test config, see test/helpers.rb ###
-
-
-# Do NOT edit this 2 lines
-fail 'no recaptcha config' if settings.recaptcha_public_key == 'SET THIS'
-fail 'no recaptcha config' if settings.recaptcha_private_key == 'SET THIS'

@@ -40,25 +40,16 @@ file CSS => 'public/bootstrap' do |t|
 end
 
 
-task :clean_config_sinatra do
-  rm_rf 'config/sinatra.rb'
-end
-
-desc 'Generate production/development env (BE CAREFUL)'
-file 'config/sinatra.rb' => 'config/sinatra.rb.example' do |t|
-  cp(t.prerequisites.first.to_s, t.name)
-end
-
 task :clean_options do
   rm_rf OPTIONS
 end
 
-desc 'Generate options (BE CAREFUL)'
+desc '(Re)Generate options (BE CAREFUL)'
 file OPTIONS => "#{OPTIONS}.example" do |t|
   cp(t.prerequisites.first.to_s, t.name)
 end
 
-desc 'Add api keys to db'
+desc 'Add api keys to a separate db'
 file DB_APIKEYS => OPTIONS do |t|
   puts 'Writing ' + t.name
   
@@ -95,7 +86,7 @@ end
 
 task default: [CSS, 'doc:all']
 task clean: [:clean_css, 'doc:clean']
-task clobber: [:clean_options, :clean_config_sinatra]
+task clobber: [:clean_options]
 
 desc "Some initial configuration"
-task init: [DB_APIKEYS, 'config/sinatra.rb', 'db:fixtures', CSS]
+task init: [DB_APIKEYS, 'db:fixtures', CSS]

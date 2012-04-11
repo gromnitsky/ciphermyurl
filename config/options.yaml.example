@@ -1,4 +1,6 @@
---- 
+---
+# The default database.
+# Look into ../lib/*/db/ directory for possible choices.
 :dbadapter: :pstore
 
 :db:
@@ -12,7 +14,12 @@
       :dbname: ciphermyurl
   :pstore:
     :params:
-      :file: some-file
+      :file: some/file.marshall
+
+# Mandatory for :production mode
+:recaptcha:
+  :kpublic: key1
+  :kprivate: key2
 
 # A pair of keys for a web client.
 # Set them with something meaningfully long.
