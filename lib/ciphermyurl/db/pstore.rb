@@ -15,6 +15,10 @@ module CipherMyUrl
         rescue
           nil
         end
+
+        def getCount
+          getValue('count')
+        end
         
         def init(opt)
           @opt = opt

@@ -76,7 +76,7 @@ module CipherMyUrl
     end
 
     def getCount
-      adapter.getValue 'count'
+      adapter.getCount
     end
 
     # [user]  email

@@ -10,8 +10,6 @@ module CipherMyUrl
 
         def getValue(id)
           r = @db.get(id)
-          return r[:last] if id == 'count'
-
           # clean the result by not including the redundant CouchDB staff
           v = {}
           v[:data] = r[:data]
@@ -21,6 +19,28 @@ module CipherMyUrl
         rescue
           nil
         end
+
+        def getCount
+          r = @db.view('app/count')
+          return 0 if r['rows'].size != 1
+          r['rows'].first['value']
+        rescue
+#          pp $!
+          nil
+        end
+
+        # Create a view for counting all documents
+        def viewCountCreate
+          @db.save_doc({
+                         '_id' => '_design/app',
+                         :views => {
+                           :count => {
+                             :map => 'function(d) { emit(null, null) }',
+                             :reduce => '_count'
+                           }
+                         }
+                       })
+        end
         
         def init(opt)
           @opt = opt
@@ -28,10 +48,7 @@ module CipherMyUrl
           u = "http#{opt[:tls] ? 's' : ''}://#{opt[:login]}:#{opt[:pw]}@#{opt[:host]}:#{opt[:port]}/#{opt[:dbname]}"
           @db = CouchRest.database! u
 
-#          $stderr.puts "*****#{getValue('count')}****"
-          unless getValue('count')
-            @db.save_doc '_id' => 'count', :last => 0
-          end
+          viewCountCreate unless getCount
         end
 
         def rmdb
@@ -40,35 +57,19 @@ module CipherMyUrl
 
         # Return a generated slot number.
         def pack(data, user, pw)
-          tries = 5
-          n = nil
-          begin
-            unless slot = @db.get('count')
-              tries = 0
-              fail "no counter in db"
-            end
-            n = slot[:last] + 1
-
-            # update count
-            @db.save_doc('_id' => 'count',
-                         '_rev' => slot['_rev'],
-                         :last => n)
-            # make new
-            @db.save_doc('_id' => n.to_s,
-                         :data => data,
-                         :user => user,
-                         :pwhash => pw)
-          rescue
-            # someone else has created slot with this number
-            n += 1
-            tries -= 1
-#            $stderr.puts "***** TRIES=#{tries}, n=#{n}****"
-            retry if tries > 0
-            
-            raise "failed to create a new slot: #{$!}"
-          end
+          fail "no counter in db" unless slot = getCount
+          slot = (slot+1).to_s
           
-          n.to_s
+          # make new
+          @db.save_doc('_id' => slot,
+                       :data => data,
+                       :user => user,
+                       :pwhash => pw)
+          slot
+        rescue
+          # Probably someone else has created slot with this number.
+          # That's what you get without a transactions support.
+          raise "failed to create slot ##{slot}: #{$!}"
         end
 
         def del(slot)
