@@ -5,6 +5,8 @@ module CipherMyUrl
     module Adapters
 
       # This module-adapter loads at run-time by MyDB module. See db.rb.
+      #
+      # Instead of deleting slots we mark them as 'deleted', see #del.
       module Couchdb
         extend self
 
@@ -25,6 +27,7 @@ module CipherMyUrl
           nil
         end
 
+        # I beg this is not very fast.
         def getCount
           r = @db.view('app/count')
           return 0 if r['rows'].size != 1

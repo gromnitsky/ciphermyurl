@@ -1,7 +1,7 @@
 = CipherMyUrl
 
 The original idea belongs to
-https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
+https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod, not me.
 
 
 == Installation
@@ -17,19 +17,23 @@ https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
      % git clone ...
      % cd ciphermyurl
 
-   Install all dependencies:
-   
-     # bundle install
+   Install all dependencies. You have 2 choices:
 
-   or (you'll have to prefix other commands with 'bundle exec' then)
+   1. Usual via
 
-     % bundle install --path vendor/bundle
+        # bundle install
+
+   2. Or only for this program
+
+        % bundle install --path vendor/bundle
+
+      You'll have to prefix other commands with 'bundle exec' though.
 
    Generate some defaults:
    
      % rake init
 
-   Edit <tt>config/sinatra.rb</tt>.
+   Edit <tt>config/options.yaml</tt>.
 
    The default configuration uses PStore as a DB so no external database
    is necessary.
@@ -50,7 +54,20 @@ https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod
 
 == Post Installation Isssues
 
-  % git add config/sinatra.rb config/options.yaml db/apikeys.yaml Gemfile.lock
-  % git commit -a -m 'saving the config'
+  % git add config/options.yaml db/apikeys.yaml Gemfile.lock
+  % git commit -a -m 'saving my local config'
 
 <tt>db/data.marshall</tt> is your PStore db.
+
+Recaptcha is used to prevent packing spam. Set in
+<tt>config/options.yaml</tt> your public & private keys.
+
+Default web client public & private key values ('key1', 'key2') are not
+suited for the production mode--change them after initial program
+testing. Don't confuse them with recaptcha keys--they are for a
+completely different purpose.
+
+== CouchDB
+
+Set the value of +:dbadapter+ in <tt>config/options.yaml</tt> to
++:couchdb+. +:login+ & +:pw+ keys are required too.
