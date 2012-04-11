@@ -17,7 +17,7 @@ Unpack.TEXTAREA = 'textarea#data'
 
 Unpack.prototype.apiGetDataAndFill = function() {
 	$(Unpack.FORM_SUBMIT).attr("disabled", true)
-	var url = '/api/'+ Unpack.API_VERSION +'/unpack/' + this.getSlot()
+	var url = '/api/'+ Unpack.API_VERSION +'/' + this.getSlot()
 	
 	var o = this
 	var r = $.get(url, {pw: this.pw.val()}, function(data) {
@@ -34,7 +34,9 @@ Unpack.prototype.apiGetDataAndFill = function() {
 }
 
 Unpack.prototype.getSlot = function() {
-	return this.slot.text() != "" ? this.slot.text() : this.slot.val()
+	var r = this.slot.text() != "" ? this.slot.text() : this.slot.val()
+	if (r == "") return "BogusNumber"
+	return r
 }
 
 Unpack.prototype.setTextarea = function(data) {
