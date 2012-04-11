@@ -48,7 +48,8 @@ module CipherMyUrl
             @store[slot] = {
               data: data,
               user: user,
-              pwhash: pw
+              pwhash: pw,
+              created: Time.now.utc.to_i
             }
           }
 

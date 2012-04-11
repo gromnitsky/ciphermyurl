@@ -5,7 +5,7 @@ require_relative '../lib/ciphermyurl/db'
 
 include CipherMyUrl
 
-class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
+class TestCouchDB < MiniTest::Unit::TestCase
   def db_connect
     MyDB.setAdapter(:couchdb, {
                       login: 'admin',
@@ -40,11 +40,12 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     MyDB.pack 'called OOc, there lived', 'c@d.com', '87654321'
     assert_equal 3, MyDB.getCount
 
-    assert_equal({
-                   data: 'in a distant galaxy',
-                   user: 'a@b.com', 
-                   pwhash: 'ed950a434f4cd3ec79a81ae722a8e4b85877769e29e490b92821216893cb0f06'
-                 }, MyDB['2'])
+    r = MyDB['2']
+    assert_equal 'in a distant galaxy', r[:data]
+    assert_equal 'a@b.com', r[:user]
+    assert_equal 'ed950a434f4cd3ec79a81ae722a8e4b85877769e29e490b92821216893cb0f06', r[:pwhash]
+    assert_match /^\d+$/, r[:created].to_s
+    assert_equal 4, r.size
 
     assert_raises(RuntimeError) {
       MyDB.pack 'a computer named R.J. Drofnats.', 'a@b.com', 'small'
@@ -53,14 +54,16 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
 
   def test_del
     MyDB.pack 'asdfghsdfsdfsdf', 'a@b.com', 'wsx22222222222222'
-    assert_equal({
-                   data: 'asdfghsdfsdfsdf',
-                   user: 'a@b.com', 
-                   pwhash: '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a'
-                 }, MyDB['1'])
+    MyDB.pack 'qwertyasdfghzxcvbn', 'z@x.com', '12345678'
+    r = MyDB['1']
+    assert_equal 'asdfghsdfsdfsdf', r[:data]
+    assert_equal 'a@b.com', r[:user]
+    assert_equal '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a', r[:pwhash]
+    assert_match /^\d+$/, r[:created].to_s
+    assert_equal 4, r.size
     
     assert_raises(RuntimeError) { MyDB.del nil }
     MyDB.del 1
-    assert_equal nil, MyDB[1]
+    assert_equal nil, MyDB['1']
   end
 end

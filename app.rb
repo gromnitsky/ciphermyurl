@@ -113,7 +113,7 @@ end
 # [403]  password is invalid
 # [404]  slot not found
 # [500]  couldn't unpack
-get "/api/0.0.1/unpack/:slot" do
+get "/api/0.0.1/:slot" do
   r = nil
   begin
     r = Api.unpack Api.unpackRequestRead(params)
@@ -143,7 +143,7 @@ end
 # [400]  bad request
 # [403]  pw is invalid
 # [500]  couldn't delete, some nasty error
-delete '/api/0.0.1/del/:slot' do
+delete '/api/0.0.1/:slot' do
   begin
     Api.del Api.delRequestRead(params)
   rescue ApiBadRequestError
@@ -243,7 +243,7 @@ get %r{^/([0-9]+)} do |slot|
   data = nil
   if params['pw']
     # run rack call to unpack the slot
-    status, headers, body = local_get "/api/#{Meta::API_VERSION}/unpack/#{slot}", "pw=#{params['pw']}"
+    status, headers, body = local_get "/api/#{Meta::API_VERSION}/#{slot}", "pw=#{params['pw']}"
     data = body.first if status == 200
     flash[:error] = headers[HDR_ERROR] if headers[HDR_ERROR]
   end

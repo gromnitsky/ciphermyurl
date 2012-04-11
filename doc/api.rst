@@ -4,7 +4,7 @@
 |name| API Spec
 ===============
 
-:Last Update: Time-stamp: <2012-04-09 02:15:33 EEST>
+:Last Update: Time-stamp: <2012-04-11 21:27:49 EEST>
 :API Version: |api_version|
 
 .. contents::
@@ -62,7 +62,7 @@ client will provide a bad request.
 Protocol
 --------
 
-Th protocol **is not** RESTfull.
+Th protocol isn't very RESTfull.
 
 Visioning of the protocol API is similar to Rubygems scheme.
 
@@ -73,7 +73,7 @@ Some API commands require authentication. To write a client for a |name|
 you'll need a pair of public and private keys. To obtain those keys
 `email me
 <mailto:flower.henry@yahoo.com?Subject=CipherMyUrl%20keys%20request>`_. (Do
-not change a title of a email.)
+not change the title of a email.)
 
 
 Commands
@@ -167,7 +167,7 @@ A valid request with a new slot as a result::
 Unpack
 ``````
 
-HTTP GET to ``/api/0.0.1/unpack/:slot``. Required parameters:
+HTTP GET to ``/api/0.0.1/:slot``. Required parameters:
 
 * ``slot`` -- in URL
 * ``pw``
@@ -192,7 +192,7 @@ Examples
 
 Client sends invalid password::
 
-  % curl -i 'http://localhost:9393/api/0.0.1/unpack/123?pw=idontremember'
+  % curl -i 'http://localhost:9393/api/0.0.1/123?pw=idontremember'
 
   HTTP/1.1 403 Forbidden 
   X-Frame-Options: sameorigin
@@ -209,7 +209,7 @@ Client sends invalid password::
 
 A valid request::
 
-  % curl -i 'http://localhost:9393/api/0.0.1/unpack/123?pw=12345678'
+  % curl -i 'http://localhost:9393/api/0.0.1/123?pw=12345678'
 
   HTTP/1.1 200 OK 
   X-Frame-Options: sameorigin
@@ -225,7 +225,7 @@ A valid request::
 Del
 ```
 
-HTTP DELETE to ``/api/0.0.1/del/:slot``. Required parameters:
+HTTP DELETE to ``/api/0.0.1/:slot``. Required parameters:
 
 * ``slot`` -- in URL
 * ``pw``
@@ -248,7 +248,7 @@ Examples
 
 Authorization error::
 
-  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del/1?pw=oops'
+  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/1?pw=oops'
 
   HTTP/1.1 403 Forbidden 
   X-Frame-Options: sameorigin
@@ -265,7 +265,7 @@ Authorization error::
 
 A valid request::
 
-  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/del/1?pw=12345678'
+  % curl -i -X DELETE 'http://localhost:9393/api/0.0.1/1?pw=12345678'
 
   HTTP/1.1 200 OK 
   X-Frame-Options: sameorigin

@@ -8,13 +8,18 @@ module CipherMyUrl
       module Couchdb
         extend self
 
+        DEL_MUTEX = Mutex.new
+
         def getValue(id)
           r = @db.get(id)
+          return nil if r[:del] == true # doc was marked as 'deleted'
+          
           # clean the result by not including the redundant CouchDB staff
           v = {}
           v[:data] = r[:data]
           v[:user] = r[:user]
           v[:pwhash] = r[:pwhash]
+          v[:created] = r[:created]
           v
         rescue
           nil
@@ -64,7 +69,8 @@ module CipherMyUrl
           @db.save_doc('_id' => slot,
                        :data => data,
                        :user => user,
-                       :pwhash => pw)
+                       :pwhash => pw,
+                       :created => Time.now.utc.to_i)
           slot
         rescue
           # Probably someone else has created slot with this number.
@@ -72,11 +78,12 @@ module CipherMyUrl
           raise "failed to create slot ##{slot}: #{$!}"
         end
 
-        def del(slot)
-          @db.delete_doc @db.get(slot)
-          true
-        rescue
-          false
+        def del(id)
+          DEL_MUTEX.synchronize {
+            slot = @db.get(id)
+            slot[:del] = true
+            @db.save_doc slot
+          }
         end
         
       end

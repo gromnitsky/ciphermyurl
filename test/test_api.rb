@@ -6,7 +6,7 @@ require_relative '../lib/ciphermyurl/auth'
 require_relative '../lib/ciphermyurl/api'
 require_relative '../lib/ciphermyurl/options'
 
-class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
+class TestApi < MiniTest::Unit::TestCase
   
   def setup
     # this runs every time before test_*
@@ -31,11 +31,12 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
     CipherMyUrl::MyDB.pack 'zxcvbnsdfdffdff', 'a@b.com', 'rfv333333333333'
     assert_equal 3, CipherMyUrl::MyDB.getCount
 
-    assert_equal({
-                   data: 'asdfghsdfsdfsdf',
-                   user: 'a@b.com', 
-                   pwhash: '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a'
-                 }, CipherMyUrl::MyDB['2'])
+    r = CipherMyUrl::MyDB['2']
+    assert_equal 'asdfghsdfsdfsdf', r[:data]
+    assert_equal 'a@b.com', r[:user]
+    assert_equal '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a', r[:pwhash]
+    assert_match /^\d+$/, r[:created].to_s
+    assert_equal 4, r.size
 
     assert_raises(RuntimeError) {
       CipherMyUrl::MyDB.pack 'zxcvbnsdfdffdff', 'a@b.com', 'qwe'
@@ -45,15 +46,16 @@ class TestCiphermyurl_1931669932 < MiniTest::Unit::TestCase
 
   def test_del
     CipherMyUrl::MyDB.pack 'asdfghsdfsdfsdf', 'a@b.com', 'wsx22222222222222'
-    assert_equal({
-                   data: 'asdfghsdfsdfsdf',
-                   user: 'a@b.com', 
-                   pwhash: '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a'
-                 }, CipherMyUrl::MyDB['1'])
+    r = CipherMyUrl::MyDB['1']
+    assert_equal 'asdfghsdfsdfsdf', r[:data]
+    assert_equal 'a@b.com', r[:user]
+    assert_equal '75b3412a5ac9d403ce34889c4ce4033ace7c3c5e6526d84e241367153e0d2d5a', r[:pwhash]
+    assert_match /^\d+$/, r[:created].to_s
+    assert_equal 4, r.size
     
     assert_raises(RuntimeError) { CipherMyUrl::MyDB.del nil }
     CipherMyUrl::MyDB.del 1
-    assert_equal nil, CipherMyUrl::MyDB[1]
+    assert_equal nil, CipherMyUrl::MyDB['1']
   end
 
   def test_uri
