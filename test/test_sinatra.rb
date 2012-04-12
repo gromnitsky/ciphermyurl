@@ -12,6 +12,7 @@ class TestSinatra < MiniTest::Unit::TestCase
 
   def setup
     # this runs every time before test_*
+    $log.level = Logger::WARN
 
     cd_to_tests
     CipherMyUrl::Api.apikeys_load 'example/01/apikeys.yaml'

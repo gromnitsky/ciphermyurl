@@ -12,4 +12,6 @@
 
 - [ ] Mobile views.
 
-- [ ] MongoDB adapter.
+- [ ] Use key-value store that supports transactions.
+
+- [ ] Rewrite to sinatra's 'modular app' style.

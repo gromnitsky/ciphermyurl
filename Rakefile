@@ -30,6 +30,11 @@ RDoc::Task.new('html') do |i|
 end
 
 
+desc "Insert all 'requires' to speedup reload"
+task :shotgunreq do
+  sh "git grep 'require ' -- '*.rb' | awk -F: '{print $2}' | sort | uniq > shotgun.rb"
+end
+
 task :clean_css do
   rm_rf CSS
 end
@@ -90,7 +95,8 @@ task clobber: [:clean_options]
 
 desc "Some initial configuration"
 task init: [DB_APIKEYS, CSS] do
-  puts 'Make sure to run "bundle install"'
+  puts ""
+  puts '*** Make sure to run "bundle install" for a deploy ***'
 end
 
 desc "Add ignored files to git to be able to deploy"

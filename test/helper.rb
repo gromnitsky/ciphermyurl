@@ -9,7 +9,7 @@ require 'minitest/autorun'
 begin
   set :environment, :test
   configure :test do
-    
+    $log.level = Logger::WARN
   end
 rescue
   # ignore for non-rack tests

@@ -3,7 +3,6 @@ require 'ostruct'
 require 'logger'
 require 'sinatra'
 require 'rack/recaptcha'
-require 'net/http'
 require 'stringio'
 require 'sinatra/outputbuffer'
 
@@ -16,12 +15,17 @@ require_relative 'lib/ciphermyurl/auth'
 require_relative 'lib/ciphermyurl/options'
 include CipherMyUrl
 
+# Some basic config
+$log = Logger.new $stdout
+$stdout.sync = true
 $opt = Options.load
 require_relative 'config/sinatra'
 
+# Cookies and flash warnings
 enable :sessions
 use Rack::Flash, sweep: true
 
+# Captcha
 use Rack::Recaptcha, public_key: settings.recaptcha_public_key, private_key: settings.recaptcha_private_key
 helpers Rack::Recaptcha::Helpers
 
@@ -44,13 +48,13 @@ helpers do
     # mark & log each request
     @requestId = SecureRandom.hex 4
     @responseStatus = nil # FIXME: remove this for 1.4+
-    logger.info "#{@requestId} before #{request.ip} #{request.path} #{request.referrer} #{request.user_agent}"
+    $log.info "#{@requestId} before #{request.ip} #{request.path} #{request.referrer} #{request.user_agent}"
   end
 
   def logAfter
     # response.status doesn't work in sinatra 1.3.2 for halts
     # FIXME: remove @responseStatus this for 1.4+
-    logger.info "#{@requestId} after #{@responseStatus ? @responseStatus : response.status} #{flash[:error]}"
+    $log.info "#{@requestId} after #{@responseStatus ? @responseStatus : response.status} #{flash[:error]}"
   end
 end
 
@@ -219,8 +223,8 @@ helpers do
     fail 'packing is unprotected (disabled cookies?)' unless session[:pack_protection]
 
     current = Digest::SHA256.hexdigest data
-    logger.debug "pack_protection=#{session[:pack_protection]}"
-    logger.debug "p-current=#{current}, p-last=#{session[:pack_last]}"
+    $log.debug "pack_protection=#{session[:pack_protection]}"
+    $log.debug "p-current=#{current}, p-last=#{session[:pack_last]}"
     
     unless session[:pack_protection] == 0
       fail 'you have submitted that data already' if session[:pack_last] == current
@@ -231,7 +235,7 @@ helpers do
   end
 
   def drawCaptcha(t)
-    return '[CAPTCHA]' if logger.level == Logger::DEBUG
+    return '[CAPTCHA]' if $log.level == Logger::DEBUG
     recaptcha_tag(:ajax, display: {theme: t})
   end
 end
