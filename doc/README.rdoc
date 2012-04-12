@@ -29,22 +29,33 @@ https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod, not me.
 
       You'll have to prefix other commands with 'bundle exec' though.
 
-   Generate some defaults:
+   Generate configuration options:
+
+     % rake config/options.yaml
+	  
+   (Edit <tt>config/options.yaml</tt>.)
+   
+   Generate some other important defaults:
    
      % rake init
 
-   Edit <tt>config/options.yaml</tt>.
+2. Create a database.
 
    The default configuration uses PStore as a DB so no external database
-   is necessary.
+   is necessary. To create minimal PStore file with 1 record, type:
 
-2. Run application:
+     % rake db:fixtures
+
+   Warning! Do not type this every time after redeploying--this rake
+   task deleted old database and then creates a new one.
+
+3. Run application:
 
      % rackup
 
-3. Point a browser to http://127.0.0.1:9292
+4. Point a browser to http://127.0.0.1:9292
 
-4. (Unnecessary)
+5. (Unnecessary)
 
    To generate API docs in xhtml, install recent Python's (what a shame)
    docutils and run:

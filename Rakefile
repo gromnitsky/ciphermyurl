@@ -89,7 +89,7 @@ task clean: [:clean_css, 'doc:clean']
 task clobber: [:clean_options]
 
 desc "Some initial configuration"
-task init: [DB_APIKEYS, 'db:fixtures', CSS] do
+task init: [DB_APIKEYS, CSS] do
   puts 'Make sure to run "bundle install"'
 end
 
