@@ -89,4 +89,12 @@ task clean: [:clean_css, 'doc:clean']
 task clobber: [:clean_options]
 
 desc "Some initial configuration"
-task init: [DB_APIKEYS, 'db:fixtures', CSS]
+task init: [DB_APIKEYS, 'db:fixtures', CSS] do
+  puts 'Make sure to run "bundle install"'
+end
+
+desc "Add ignored files to git to be able to deploy"
+task :gitadd do
+  sh "git add -f Gemfile.lock #{DB_APIKEYS} #{CSS} #{OPTIONS} doc/*.xhtml"
+  sh "git commit -a -m 'added required files for deploying'"
+end
