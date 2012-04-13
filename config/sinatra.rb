@@ -1,7 +1,16 @@
 # This file is loaded by the application at start-up.
 
+# Disable useless rack logger completely! Yay, yay!
+module Rack
+  class CommonLogger
+    def call(env)
+      # do nothing
+      @app.call(env)
+    end
+  end
+end
+
 configure do
-  set :logging, nil
   $log.level = Logger::INFO
 
   # http://www.google.com/recaptcha/whyrecaptcha
@@ -36,4 +45,4 @@ configure :production do
   set :haml, ugly: true
 end
 
-### For :test config, see test/helpers.rb ###
+### For :test config, see test/helper_sinatra.rb ###

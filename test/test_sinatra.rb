@@ -2,6 +2,7 @@ require 'rack/test'
 require_relative '../app'
 
 require_relative 'helper'
+require_relative 'helper_sinatra'
 
 class TestSinatra < MiniTest::Unit::TestCase
   include Rack::Test::Methods
@@ -12,7 +13,6 @@ class TestSinatra < MiniTest::Unit::TestCase
 
   def setup
     # this runs every time before test_*
-    $log.level = Logger::WARN
 
     cd_to_tests
     CipherMyUrl::Api.apikeys_load 'example/01/apikeys.yaml'

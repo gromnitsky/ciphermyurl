@@ -5,16 +5,6 @@ include FileUtils
 require_relative '../lib/ciphermyurl/meta'
 require 'minitest/autorun'
 
-# Sinatra config
-begin
-  set :environment, :test
-  configure :test do
-    $log.level = Logger::WARN
-  end
-rescue
-  # ignore for non-rack tests
-end
-
 def cd_to_tests
   case File.basename(Dir.pwd)
   when CipherMyUrl::Meta::NAME.downcase
