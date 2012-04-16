@@ -19,7 +19,7 @@ CSS = 'public/style.css'
 OPTIONS = 'config/options.yaml'
 
 Rake::TestTask.new do |i|
-  i.test_files = FileList['test/test_*.rb']
+  i.test_files = FileList['test/test_*.rb'].exclude /browser/
 end
 
 RDoc::Task.new('html') do |i|

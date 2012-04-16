@@ -1,6 +1,7 @@
 require 'stringio'
 
 require_relative 'helper'
+gem 'multi_json', '~> 1.0.0'
 require_relative '../lib/ciphermyurl/db'
 
 include CipherMyUrl

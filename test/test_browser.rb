@@ -1,4 +1,5 @@
 require 'selenium-webdriver'
+require 'securerandom'
 
 require_relative 'helper'
 
@@ -69,18 +70,50 @@ class TestBrowser < MiniTest::Unit::TestCase
 
   def test_pack
     navigate @host, @port, '/'
-    #element = driver.find_element :name => "q"
-    #element.send_keys "Cheese!"
-    #element.submit
-
     assert_equal "#{CipherMyUrl::Meta::NAME} :: Pack", @@d.title
 
-    #wait = Selenium::WebDriver::Wait.new(:timeout => 10)
-    #wait.until { driver.title.downcase.start_with? "cheese!" }
+    # Fill form with invalid password
+    e = @@d.find_element :id, 'data'
+    e.send_keys "Cheese!"
+    e.submit
+    wait = Selenium::WebDriver::Wait.new timeout: 4
+    wait.until {
+      flash = @@d.find_elements :css, 'form div[class="alert alert-error"]'
+      assert_match /password length/, flash.first.text
+    }
+
+    # Fill form with invalid data
+    e = @@d.find_element :css, 'form input[name="pw"]'
+    e.send_keys "1234567"
+    e.submit
+    wait = Selenium::WebDriver::Wait.new timeout: 4
+    wait.until {
+      flash = @@d.find_elements :css, 'form div[class="alert alert-error"]'
+      assert_match /password length/, flash.first.text
+    }
+
+    # Submit is OK
+    @@d.find_element(:css, 'form input[type="reset"]').click
+    e = @@d.find_element :id, 'data'
+    e.send_keys SecureRandom.hex(6)
+    e = @@d.find_element :css, 'form input[name="pw"]'
+    e.send_keys "12345678"
+    e.submit
+    wait = Selenium::WebDriver::Wait.new timeout: 4
+    wait.until {
+      p = @@d.find_elements :css, 'p'
+      assert_match /data was successfully/, p.first.text
+    }
+
+    # Woohoo
+    @@d.navigate.refresh
+    @@d.switch_to.alert.accept # press OK on a dialog box
+    wait = Selenium::WebDriver::Wait.new timeout: 4
+    wait.until {
+      flash = @@d.find_elements :css, 'form div[class="alert alert-error"]'
+      assert_match /submitted that data already/, flash.first.text
+    }
     
-    #puts "Page title is #{d.title}"
-    
-    #d.quit
   end
 
   def test_unpack
