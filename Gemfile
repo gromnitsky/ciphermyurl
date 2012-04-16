@@ -13,4 +13,5 @@ group :development do
   gem "minitest", "~> 2.12.0"
   gem "rack-test", "~> 0.6.1"
   gem "shotgun", "~> 0.9"
+  gem "selenium-webdriver", "~> 2.21.0"
 end
