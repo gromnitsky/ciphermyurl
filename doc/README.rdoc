@@ -3,6 +3,7 @@
 The original idea belongs to
 https://plus.google.com/102094915438818669469/posts/g4tYBNoSTod, not me.
 
+A live example: http://ciphermyurl.herokuapp.com
 
 == Installation
 
